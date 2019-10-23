@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# AUTHOR: Bram Pulles
+
+PROGRAM="solver" 
+SAMPLES_PATH="samples"
+
+MAX_TIME="1"
+DEBUG=false
+
+RUN="./"
+
+# Options for user input parsing.
+OPTIONS=p:s:dm:hj
+LONGOPTS=program:,samples:,debug,max-time:,java,help
+
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+parsed_correctly=$?
+eval set -- "$PARSED"
+
+# help function.
+function help {
+	echo -e "
+Usage: $0 [OPTIONS...]
+
+This is an automatic testing tool for the algorithm and datastructures 
+practicum. The script tries to run a C++ program by default.
+
+Options:
+  -p,--program <path>    - Specify the path to your program
+  -s,--samples <dir>     - Specify the path to your samples folder
+  -m,--max-time <value>  - Specify the max time (s) to solve one case
+  -d,--debug             - Show error messages (stderr)
+  -j,--java              - Run a Java solver
+  -h,--help              - Show this help
+
+Written by Bram Pulles
+"
+}
+
+# If getopt gives a value then quit and show help.
+if [ $parsed_correctly -ne 0 ]
+then
+	echo "Use the option -h or --help for more information."
+	exit $parsed_correctly
+fi
+
+# Parse options until '--'.
+while true; do 
+	case "$1" in
+		-p|--program)
+			PROGRAM="$2"
+			shift 2
+			;;
+		-s|--samples)
+			SAMPLES_PATH="$2"
+			shift 2
+			;;
+		-d|--debug)
+			DEBUG=true
+			shift
+			;;
+		-m|--max-time)
+			MAX_TIME="$2"
+			shift 2
+			;;
+		-j|--java)
+			RUN="java "
+			shift
+			;;
+		-h|--help)
+			help
+			exit 0
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo "Invalid option."
+			exit 1
+			;;
+	esac
+done
+
+# Colors and fonts.
+GREEN='\e[32m'
+RED='\e[31m'
+NC='\e[0m' # No Color
+DIM='\e[2m'
+BOLD=$(tput bold)
+NORMAL=$(tput sgr0)
+
+# Start actual programs.
+echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
+temp_time_result="$(mktemp)"
+
+for input in $(ls $SAMPLES_PATH/*.in) 
+do
+	answer_file="$(echo "$input" | sed -r 's/in/out/g')"
+	answer="$(cat < $answer_file)"
+
+	output="`( time timeout $MAX_TIME $RUN$PROGRAM < $input 2>&1) 2> $temp_time_result`"
+	stdout="$(echo "$output" | grep possible)"
+	stderr="$(echo "$output" | grep -v possible)"
+
+	time="$(cat $temp_time_result | grep real | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
+
+	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$NC" && stdout="TIME-OUT"
+	[[ "$stdout" == "" ]] && stdout="ERROR\t"
+	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$NC"; else stdout="$RED$stdout$NC"; fi
+
+	input_file="$(echo "$input" | sed 's/.*\///')"
+
+	echo -e "$input_file\t$stdout\t$answer\t$time"
+	[[ "$DEBUG" = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
+done
+
+rm -f $temp_time_result
