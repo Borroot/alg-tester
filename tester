@@ -109,7 +109,8 @@ do
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
 	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$NC"; else stdout="$RED$stdout$NC"; fi
 
-	input_file="$(echo "$input" | sed 's/.*\///')"
+	# Remove the preceding path of the input file using bashes pattern matching operators.
+	input_file=${input##*/}
 
 	echo -e "$input_file\t$stdout\t$answer\t$time"
 	[[ "$DEBUG" = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
