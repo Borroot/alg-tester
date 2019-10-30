@@ -93,17 +93,17 @@ NORMAL=$(tput sgr0)
 # Start actual programs.
 echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
 temp_time_result=$(mktemp)
-stdout_file=$(mktemp)
-stderr_file=$(mktemp)
+temp_stdout_file=$(mktemp)
+temp_stderr_file=$(mktemp)
 
 for input in $(ls $SAMPLES_PATH/*.in) 
 do
 	answer_file="${input%in}out"
 	answer="$(cat < $answer_file)"
 
-	( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $stderr_file 1> $stdout_file) 2> $temp_time_result
-	stdout="$(cat $stdout_file)"
-	stderr="$(cat $stderr_file)"
+	( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file 1> $temp_stdout_file) 2> $temp_time_result
+	stdout="$(cat $temp_stdout_file)"
+	stderr="$(cat $temp_stderr_file)"
 
 	time="$(cat $temp_time_result | grep real | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
 
@@ -118,4 +118,4 @@ do
 	[[ "$DEBUG" = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
 done
 
-rm -f $temp_time_result
+rm -f $temp_time_result $temp_stdout_file $temp_stderr_file
