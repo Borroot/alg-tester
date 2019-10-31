@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 # AUTHOR: Bram Pulles
+# This program can be used to identify all the duplicate samples.
 
 folder="${1:-samples}"
 
