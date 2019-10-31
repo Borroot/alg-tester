@@ -3,7 +3,7 @@
 
 # Default values.
 PROGRAM="solver" 
-SAMPLES_PATH="bin-tester/samples"
+SAMPLES_PATH="bin-tester/samples-no-doubles"
 
 MAX_TIME="1"
 DEBUG=false
