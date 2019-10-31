@@ -93,7 +93,6 @@ NORMAL=$(tput sgr0)
 # Start actual programs.
 echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
 temp_time_result=$(mktemp)
-temp_stdout_file=$(mktemp)
 temp_stderr_file=$(mktemp)
 
 for input in $(ls $SAMPLES_PATH/*.in) 
@@ -101,8 +100,7 @@ do
 	answer_file="${input%in}out"
 	answer="$(cat < $answer_file)"
 
-	( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file 1> $temp_stdout_file) 2> $temp_time_result
-	stdout="$(cat $temp_stdout_file)"
+	stdout="$( ( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file ) 2> $temp_time_result)"
 	stderr="$(cat $temp_stderr_file)"
 
 	time="$(cat $temp_time_result | grep real | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
@@ -111,11 +109,10 @@ do
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
 	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$NC"; else stdout="$RED$stdout$NC"; fi
 
-	# Remove the preceding path of the input file using bashes pattern matching operators.
 	input_file=${input##*/}
 
 	echo -e "$input_file\t$stdout\t$answer\t$time"
-	[[ "$DEBUG" = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
+	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
 done
 
-rm -f $temp_time_result $temp_stdout_file $temp_stderr_file
+rm -f $temp_time_result $temp_stderr_file
