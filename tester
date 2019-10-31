@@ -50,42 +50,14 @@ fi
 # Parse options until '--'.
 while true; do 
 	case "$1" in
-		-p|--program)
-			PROGRAM="$2"
-			shift 2
-			;;
-		-s|--samples)
-			SAMPLES_PATH="$2"
-			shift 2
-			;;
-		-d|--debug)
-			DEBUG=true
-			shift
-			;;
-		-m|--max-time)
-			MAX_TIME="$2"
-			shift 2
-			;;
-		-c|--cpp)
-			RUN="./"
-			shift
-			;;
-		-j|--java)
-			RUN="java "
-			shift
-			;;
-		-h|--help)
-			help
-			exit 0
-			;;
-		--)
-			shift
-			break
-			;;
-		*)
-			echo "Invalid option."
-			exit 1
-			;;
+		-p|--program)   PROGRAM="$2"      ; shift 2 ;;
+		-s|--samples)   SAMPLES_PATH="$2" ; shift 2 ;;
+		-m|--max-time)  MAX_TIME="$2"     ; shift 2 ;;
+		-d|--debug)     DEBUG=true        ; shift   ;;
+		-c|--cpp)       RUN="./"          ; shift   ;;
+		-j|--java)      RUN="java "       ; shift   ;;
+		-h|--help)      help  ; exit 0 ;;
+		--)             shift ; break  ;;
 	esac
 done
 
