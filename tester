@@ -10,8 +10,8 @@ DEBUG=false
 RUN="./"
 
 # Options for user input parsing.
-OPTIONS=p:s:dm:hj
-LONGOPTS=program:,samples:,debug,max-time:,java,help
+OPTIONS=p:s:dm:hjc
+LONGOPTS=program:,samples:,debug,max-time:,java,cpp,help
 
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 parsed_correctly=$?
@@ -23,13 +23,15 @@ function help {
 Usage: $0 [OPTIONS...]
 
 This is an automatic testing tool for the algorithm and datastructures 
-practicum. The script tries to run a C++ program by default.
+practicum. The script tries to run a C++ program by default. These 
+default values can be changed inside the script at the top.
 
 Options:
   -p,--program <path>    - Specify the path to your program
   -s,--samples <dir>     - Specify the path to your samples folder
   -m,--max-time <value>  - Specify the max time (s) to solve one case
   -d,--debug             - Show error messages (stderr)
+  -c,--cpp               - Run a C++ solver.
   -j,--java              - Run a Java solver
   -h,--help              - Show this help
 
@@ -62,6 +64,10 @@ while true; do
 		-m|--max-time)
 			MAX_TIME="$2"
 			shift 2
+			;;
+		-c|--cpp)
+			RUN="./"
+			shift
 			;;
 		-j|--java)
 			RUN="java "
