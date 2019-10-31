@@ -3,7 +3,7 @@
 
 # Default values.
 PROGRAM="solver" 
-SAMPLES_PATH="samples"
+SAMPLES_PATH="bin-tester/samples"
 
 MAX_TIME="1"
 DEBUG=false
