@@ -10,35 +10,13 @@ DEBUG=false
 RUN="./"
 
 # Options for user input parsing.
-OPTIONS=p:s:dm:hjc
-LONGOPTS=program:,samples:,debug,max-time:,java,cpp,help
+OPTIONS=p:s:m:dcjh
+LONGOPTS=program:,samples:,max-time:,debug,cpp,java,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 parsed_correctly=$?
 eval set -- "$PARSED"
-
-# Help function.
-function help {
-	echo -e "
-Usage: $0 [OPTIONS...]
-
-This is an automatic testing tool for the algorithm and datastructures 
-practicum. The script tries to run a C++ program by default. These 
-default values can be changed inside the script at the top.
-
-Options:
-  -p,--program <path>    - Specify the path to your program
-  -s,--samples <dir>     - Specify the path to your samples folder
-  -m,--max-time <value>  - Specify the max time (s) to solve one case
-  -d,--debug             - Show error messages (stderr)
-  -c,--cpp               - Run a C++ solver.
-  -j,--java              - Run a Java solver
-  -h,--help              - Show this help
-
-Written by Bram Pulles
-"
-}
 
 # If getopt gives an error then quit and show help.
 if [ $parsed_correctly -ne 0 ]
@@ -50,14 +28,14 @@ fi
 # Parse options until '--'.
 while true; do 
 	case "$1" in
-		-p|--program)   PROGRAM="$2"      ; shift 2 ;;
-		-s|--samples)   SAMPLES_PATH="$2" ; shift 2 ;;
-		-m|--max-time)  MAX_TIME="$2"     ; shift 2 ;;
-		-d|--debug)     DEBUG=true        ; shift   ;;
-		-c|--cpp)       RUN="./"          ; shift   ;;
-		-j|--java)      RUN="java "       ; shift   ;;
-		-h|--help)      help  ; exit 0 ;;
-		--)             shift ; break  ;;
+		-p|--program)   PROGRAM="$2"       ; shift 2 ;;
+		-s|--samples)   SAMPLES_PATH="$2"  ; shift 2 ;;
+		-m|--max-time)  MAX_TIME="$2"      ; shift 2 ;;
+		-d|--debug)     DEBUG=true         ; shift   ;;
+		-c|--cpp)       RUN="./"           ; shift   ;;
+		-j|--java)      RUN="java "        ; shift   ;;
+		-h|--help)      man ./bin-tester.1 ; exit 0  ;;
+		--)             shift              ; break   ;;
 	esac
 done
 

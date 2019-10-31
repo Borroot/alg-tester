@@ -1,0 +1,78 @@
+." Manpage for the bin-tester
+.TH bin-tester 1 "31 October 2019" "version 1.0"
+.SH NAME
+bin-tester - the coolest tester for the bin placement problem
+.SH SYNOPSIS
+.B bin-solver
+[-p <path>]
+[--program <path>]
+[-s <path>]
+[--samples <path>]
+[-m <value>]
+[--max-time <value>]
+[-d]
+[--debug]
+[-c]
+[--cpp]
+[-j]
+[--java]
+[-h]
+[--help]
+.SH DESCRIPTION
+.B bin-tester
+is an automated testing tool made for a project for university that got out of hand. This tester uses a samples directory which specifies input files with corresponding output files. The input files are written through
+.B STDIN
+to a
+.B bin-solver
+of choice. The
+.B bin-solver
+then produces an answer which is written to
+.BR STDOUT , 
+this answer is checked against the corresponding output file. If the answer is correct it will be shown as green if not then red. The
+.B bin-tester
+is also able to interrupt the
+.B bin-solver
+when it is taking to long for a certain case. You can furthermore show the
+.B STDERR
+output and the program has some primitive error detection for the
+.BR bin-solver .
+.SH OPTIONS
+.TP
+-p,--program <path>
+Specify the path to your
+.BR bin-solver .
+.TP
+-s,--samples <path>
+Specify the path to your samples folder.
+.TP
+-m,--max-time <value>
+Specify the max time (in seconds) your
+.B bin-solver
+is allowed to take to solve one sample.
+.TP
+-d,--debug
+Print everything your 
+.B bin-solver
+is writing to
+.BR STDERR .
+.TP
+-c,--cpp
+Run a C++
+.BR bin-solver .
+.TP
+-j,--java
+Run a Java
+.BR bin-solver .
+.TP
+-h,--help
+Show this man page.
+.SH REPORTING BUGS
+Report issues or create pull request at GitHub:
+
+https://github.com/Borroot/bin-tester/issues
+.SH AUTHOR
+Bram Pulles <borroot@live.nl>
+.SH SEE ALSO
+.BR bin-solver (1)
+
+https://github.com/Borroot/bin-solver
