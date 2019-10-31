@@ -1,0 +1,27 @@
+#!/usr/bin/env zsh
+# AUTHOR: Bram Pulles
+
+declare -a inputs
+inputs=($(ls samples/*.in))
+count=0
+
+for ((i = 1; i < ${#inputs}; i++)) 
+do
+	for ((j = i; j < ${#inputs}; j++))
+	do
+		input1=${inputs[i]}
+		input2=${inputs[j]}
+
+		if [[ $input1 != $input2 ]] 
+		then
+			diff $input1 $input2 > /dev/null
+			if [[ $? -ne 1 ]] 
+			then
+				let "count += 1"
+				echo -e "$input1\t$input2" 
+			fi
+		fi
+	done
+done
+
+echo "There are $count doubles."
