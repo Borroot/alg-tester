@@ -37,7 +37,7 @@ Written by Bram Pulles
 "
 }
 
-# If getopt gives a value then quit and show help.
+# If getopt gives an error then quit and show help.
 if [ $parsed_correctly -ne 0 ]
 then
 	echo "Use the option -h or --help for more information."
