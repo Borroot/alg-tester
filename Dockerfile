@@ -1,9 +1,10 @@
 FROM python:3
 
-ADD solver        /
+ADD solver.o      /
 ADD bin-tester    /
 ADD samples       /samples
 
 ADD bin-tester.1  /
 
-CMD [ "./bin-tester", "-3d" ]
+RUN ["chmod", "+x", "/solver.o"]
+CMD ["./bin-tester", "-dp", "solver.o"]
