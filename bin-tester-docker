@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+docker build -t bin-tester-build .
+docker run --name bin-tester-container bin-tester-build
+docker rm bin-tester-container
