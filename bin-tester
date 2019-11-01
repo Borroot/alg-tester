@@ -2,7 +2,7 @@
 # AUTHOR: Bram Pulles
 
 # Default values.
-PROGRAM="solver" 
+PROGRAM="solver.o" 
 SAMPLES_PATH="samples"
 MAN_PATH="."
 
