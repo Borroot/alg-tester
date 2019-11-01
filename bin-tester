@@ -11,8 +11,8 @@ DEBUG=false
 RUN="./"
 
 # Options for user input parsing.
-OPTIONS=p:s:m:dcjh
-LONGOPTS=program:,samples:,max-time:,debug,cpp,java,help
+OPTIONS=p:s:m:dcj23h
+LONGOPTS=program:,samples:,max-time:,debug,cpp,java,python2,python3,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -35,6 +35,8 @@ while true; do
 		-d|--debug)     DEBUG=true                   ; shift   ;;
 		-c|--cpp)       RUN="./"                     ; shift   ;;
 		-j|--java)      RUN="java "                  ; shift   ;;
+		-2|--python2)   RUN="python2 "               ; shift   ;;
+		-3|--python3)   RUN="python3 "               ; shift   ;;
 		-h|--help)      man "$MAN_PATH"/bin-tester.1 ; exit 0  ;;
 		--)             shift                        ; break   ;;
 	esac
