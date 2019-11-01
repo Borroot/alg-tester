@@ -2,6 +2,9 @@
 # AUTHOR: Bram Pulles
 # This program can be used to identify all the duplicate samples.
 
+# I used it in particular to remove all the duplicates. It is easy
+# to extend this program for other uses.
+
 folder="${1:-samples}"
 
 declare -a inputs
