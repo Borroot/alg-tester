@@ -3,9 +3,10 @@
 
 # Default values.
 PROGRAM="solver" 
-SAMPLES_PATH="bin-tester/samples"
+SAMPLES_PATH="samples"
+MAN_PATH="."
 
-MAX_TIME="1"
+MAX_TIME=1
 DEBUG=false
 RUN="./"
 
@@ -28,14 +29,14 @@ fi
 # Parse options until '--'.
 while true; do 
 	case "$1" in
-		-p|--program)   PROGRAM="$2"       ; shift 2 ;;
-		-s|--samples)   SAMPLES_PATH="$2"  ; shift 2 ;;
-		-m|--max-time)  MAX_TIME="$2"      ; shift 2 ;;
-		-d|--debug)     DEBUG=true         ; shift   ;;
-		-c|--cpp)       RUN="./"           ; shift   ;;
-		-j|--java)      RUN="java "        ; shift   ;;
-		-h|--help)      man ./bin-tester.1 ; exit 0  ;;
-		--)             shift              ; break   ;;
+		-p|--program)   PROGRAM="$2"                 ; shift 2 ;;
+		-s|--samples)   SAMPLES_PATH="$2"            ; shift 2 ;;
+		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
+		-d|--debug)     DEBUG=true                   ; shift   ;;
+		-c|--cpp)       RUN="./"                     ; shift   ;;
+		-j|--java)      RUN="java "                  ; shift   ;;
+		-h|--help)      man "$MAN_PATH"/bin-tester.1 ; exit 0  ;;
+		--)             shift                        ; break   ;;
 	esac
 done
 
