@@ -19,7 +19,7 @@ do
 		diff ${inputs[i]} ${inputs[j]} > /dev/null
 		if [[ $? -ne 1 ]] 
 		then
-			let "count++"
+			let count++
 			echo -e "${inputs[i]#*/}\t<->   ${inputs[j]#*/}" 
 		fi
 	done

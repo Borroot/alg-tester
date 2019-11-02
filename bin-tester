@@ -66,7 +66,7 @@ temp_stderr_file=$(mktemp)
 echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
 
 # Run the solver on all the samples in the samples folder.
-for input in $(ls $SAMPLES_PATH/*.in) 
+for input in $(ls "$SAMPLES_PATH"/*.in) 
 do
 	# Set the answer file and answer from this file.
 	answer_file="${input%in}out"
