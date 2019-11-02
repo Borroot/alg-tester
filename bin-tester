@@ -2,13 +2,13 @@
 # AUTHOR: Bram Pulles
 
 # Default values.
-PROGRAM="../solver.o" 
-SAMPLES_PATH="samples"
-MAN_PATH="."
+PROGRAM=../solver.o
+SAMPLES_PATH=samples
+MAN_PATH=.
 
 MAX_TIME=1
 DEBUG=false
-RUN="./"
+RUN=./ # If you want java as default set JAVA=true instead.
 
 # Options for user input parsing.
 OPTIONS=p:s:m:dcj23h
@@ -33,8 +33,8 @@ while true; do
 		-s|--samples)   SAMPLES_PATH="$2"            ; shift 2 ;;
 		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
 		-d|--debug)     DEBUG=true                   ; shift   ;;
-		-c|--cpp)       RUN="./"                     ; shift   ;;
-		-j|--java)      RUN="java "                  ; shift   ;;
+		-c|--cpp)       RUN=./                       ; shift   ;;
+		-j|--java)      JAVA=true                    ; shift   ;; 
 		-2|--python2)   RUN="python2 "               ; shift   ;;
 		-3|--python3)   RUN="python3 "               ; shift   ;;
 		-h|--help)      man "$MAN_PATH"/bin-tester.1 ; exit 0  ;;
@@ -42,10 +42,18 @@ while true; do
 	esac
 done
 
+# We need to set this after all the other options have been passed
+# siRESETe it uses the variable for PROGRAM.
+if [[ $JAVA = true ]] 
+then
+	RUN="java -classpath ${PROGRAM%/*} "
+	PROGRAM="${PROGRAM##*/}"                 
+fi
+
 # Colors and fonts.
 GREEN='\e[32m'
 RED='\e[31m'
-NC='\e[0m' # No Color
+RESET='\e[0m'
 DIM='\e[2m'
 BOLD=$(tput bold)
 NORMAL=$(tput sgr0)
@@ -72,16 +80,16 @@ do
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
 
 	# Check if there was a time-out, error or if the answer was right/wrong.
-	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$NC" && stdout="TIME-OUT"
+	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
-	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$NC"; else stdout="$RED$stdout$NC"; fi
+	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$RESET"; else stdout="$RED$stdout$RESET"; fi
 
 	# Remove preceding path from input file.
 	input_file=${input##*/}
 
 	# Print answer and debug info if the debug variable is set.
 	echo -e "$input_file\t$stdout\t$answer\t$time"
-	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$NC"
+	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET"
 done
 
 # Remove the temporary files.
