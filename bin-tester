@@ -43,11 +43,11 @@ while true; do
 done
 
 # We need to set this after all the other options have been passed
-# siRESETe it uses the variable for PROGRAM.
+# since it uses the variable for PROGRAM.
 if [[ $JAVA = true ]] 
 then
-	RUN="java -classpath ${PROGRAM%/*} "
-	PROGRAM="${PROGRAM##*/}"                 
+	RUN="java -classpath $(dirname $PROGRAM) "
+	PROGRAM="$(basename $PROGRAM)"
 fi
 
 # Colors and fonts.
