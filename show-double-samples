@@ -7,7 +7,6 @@
 
 folder="${1:-samples}"
 
-declare -a inputs
 inputs=($(ls "$folder"/*.in))
 
 count=0
