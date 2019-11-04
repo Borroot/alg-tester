@@ -67,6 +67,7 @@ temp_stderr_file=$(mktemp)
 
 # Initialize statistics value.
 correct=0
+total_time=0
 
 # Draw a nice header.
 echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
@@ -85,10 +86,19 @@ do
 	# Filter the time the program took and add this to the total time.
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
 
-	# Check if there was a time-out, error or if the answer was right/wrong.
+	# Check if there was a time-out or error.
 	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
-	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$RESET"; let correct++; else stdout="$RED$stdout$RESET"; fi
+
+	# Check if the answer is correct and set colors and variables accordingly.
+	if [[ "$stdout" == "$answer" ]]
+	then
+		stdout="$GREEN$stdout$RESET"
+		let correct++
+		let total_time="total_time + $(tr -d '.' <<< $time | sed 's/^0*//g')"
+	else
+		stdout="$RED$stdout$RESET"
+	fi
 
 	# Remove preceding path from input file.
 	input_file=${input##*/}
@@ -100,7 +110,7 @@ done
 
 # Print the statistics.
 TOTAL=$(ls "$SAMPLES_PATH"/*.in | wc -l)
-[[ $STATS = true ]] && echo -e You have answered $correct out of $TOTAL correctly.
+[[ $STATS = true ]] && echo -e You have answered $correct out of $TOTAL correctly in an average time of $(( $total_time / $TOTAL ))ms.
 
 # Remove the temporary files.
 rm -f $temp_time_result $temp_stderr_file
