@@ -7,12 +7,14 @@ SAMPLES_PATH=samples
 MAN_PATH=.
 
 MAX_TIME=1
-DEBUG=false
 RUN=./ # If you want java as default set JAVA=true instead.
 
+DEBUG=false
+STATS=true
+
 # Options for user input parsing.
-OPTIONS=p:s:m:dcj23h
-LONGOPTS=program:,samples:,max-time:,debug,cpp,java,python2,python3,help
+OPTIONS=p:s:m:dxcj23h
+LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python2,python3,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -33,6 +35,7 @@ while true; do
 		-s|--samples)   SAMPLES_PATH="$2"            ; shift 2 ;;
 		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
 		-d|--debug)     DEBUG=true                   ; shift   ;;
+		-x|--extras)    STATS=true                   ; shift   ;;
 		-c|--cpp)       RUN=./                       ; shift   ;;
 		-j|--java)      JAVA=true                    ; shift   ;; 
 		-2|--python2)   RUN="python2 "               ; shift   ;;
@@ -62,6 +65,9 @@ NORMAL=$(tput sgr0)
 temp_time_result=$(mktemp)
 temp_stderr_file=$(mktemp)
 
+# Initialize statistics value.
+correct=0
+
 # Draw a nice header.
 echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
 
@@ -76,13 +82,13 @@ do
 	stdout="$( ( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file ) 2> $temp_time_result)"
 	stderr="$(< $temp_stderr_file)"
 
-	# Filter the time the program took.
+	# Filter the time the program took and add this to the total time.
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
 
 	# Check if there was a time-out, error or if the answer was right/wrong.
 	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
-	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$RESET"; else stdout="$RED$stdout$RESET"; fi
+	if [[ "$stdout" == "$answer" ]]; then stdout="$GREEN$stdout$RESET"; let correct++; else stdout="$RED$stdout$RESET"; fi
 
 	# Remove preceding path from input file.
 	input_file=${input##*/}
@@ -91,6 +97,10 @@ do
 	echo -e "$input_file\t$stdout\t$answer\t$time"
 	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET"
 done
+
+# Print the statistics.
+TOTAL=$(ls "$SAMPLES_PATH"/*.in | wc -l)
+[[ $STATS = true ]] && echo -e You have answered $correct out of $TOTAL correctly.
 
 # Remove the temporary files.
 rm -f $temp_time_result $temp_stderr_file
