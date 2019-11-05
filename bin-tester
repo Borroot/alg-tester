@@ -84,10 +84,11 @@ do
 	stderr="$(< $temp_stderr_file)"
 
 	# Filter the time the program took and add this to the total time.
-	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/.*m//' | tr -d s)"
+	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/0m//' | tr -d s)"
+	colored_time=$time
 
 	# Check if there was a time-out or error.
-	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && time="$RED$time$RESET" && stdout="TIME-OUT"
+	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && colored_time="$RED$time$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
 
 	# Check if the answer is correct and set colors and variables accordingly.
@@ -95,7 +96,7 @@ do
 	then
 		stdout="$GREEN$stdout$RESET"
 		let correct++
-		let total_time="total_time + $(tr -d '.' <<< $time | sed 's/^0*//g')"
+		[[ !$(grep m <<< $time) ]] && let total_time="total_time + $(tr -d '.' <<< $time | sed 's/^0*//g')"
 	else
 		stdout="$RED$stdout$RESET"
 	fi
@@ -104,7 +105,7 @@ do
 	input_file=${input##*/}
 
 	# Print answer and debug info if the debug variable is set.
-	echo -e "$input_file\t$stdout\t$answer\t$time"
+	echo -e "$input_file\t$stdout\t$answer\t$colored_time"
 	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET" >&2
 done
 
