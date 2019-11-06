@@ -96,7 +96,7 @@ do
 	then
 		stdout="$GREEN$stdout$RESET"
 		let correct++
-		[[ !$(grep m <<< $time) ]] && let total_time="total_time + $(tr -d '.' <<< $time | sed 's/^0*//g')"
+		[[ !$(grep m <<< $time) ]] && let total_time="total_time + $(tr -d ',.' <<< $time | sed 's/^0*//g')"
 	else
 		stdout="$RED$stdout$RESET"
 	fi
