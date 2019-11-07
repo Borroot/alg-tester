@@ -109,7 +109,7 @@ do
 	colored_time=$time
 
 	# Check if there was a time-out or error.
-	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'")}') )) && colored_time="$RED$time$RESET" && stdout="TIME-OUT"
+	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'" && "'$MAX_TIME'" != "0")}') )) && colored_time="$RED$time$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
 
 	# Check if the answer is correct and set colors and variables accordingly.
