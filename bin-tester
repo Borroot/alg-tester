@@ -9,13 +9,12 @@ MAN_PATH=.
 MAX_TIME=1
 RUN=./ # If you want java as default set JAVA=true instead.
 
-ABSOLUTE=false
 DEBUG=false
 STATS=true
 
 # Options for user input parsing.
-OPTIONS=p:s:m:adxcj23h
-LONGOPTS=program:,samples:,max-time:,absolute,debug,extras,cpp,java,python2,python3,help
+OPTIONS=p:s:m:dxcj23h
+LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python2,python3,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -35,7 +34,6 @@ while true; do
 		-p|--program)   PROGRAM="$2"                 ; shift 2 ;;
 		-s|--samples)   SAMPLES_PATH="$2"            ; shift 2 ;;
 		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
-		-a|--absolute)  ABSOLUTE=true                ; shift   ;;
 		-d|--debug)     DEBUG=true                   ; shift   ;;
 		-x|--extras)    STATS=true                   ; shift   ;;
 		-c|--cpp)       RUN=./                       ; shift   ;;
@@ -57,7 +55,7 @@ fi
 
 # If the program we are trying to run is C++ and we have an absolute path
 # then we do not want to have RUN=./ but RUN=
-if [[ $ABSOLUTE = true && $RUN == "./" ]]
+if [[ $PROGRAM == /* && $RUN == "./" ]]
 then
 	RUN=""
 fi
