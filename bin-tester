@@ -12,6 +12,20 @@ RUN=./ # If you want java as default set JAVA=true instead.
 DEBUG=false
 STATS=true
 
+# Check if the current version is up-to-date with upstream.
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "$BRANCH" != "master" ]]
+then
+	HEADHASH=$(git rev-parse HEAD)
+	UPSTREAMHASH=$(git rev-parse master@{upstream})
+
+	if [[ "$HEADHASH" != "$UPSTREAMHASH" ]]
+	then
+		echo There has been a new update upstream. Please type in \`git pull\` to update your version.
+	fi
+fi
+
 # Options for user input parsing.
 OPTIONS=p:s:m:dxcj23h
 LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python2,python3,help
