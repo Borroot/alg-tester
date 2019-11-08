@@ -4,7 +4,7 @@
 # Default values.
 PROGRAM=../coloring.o
 SAMPLES_PATH=samples
-MAN_PATH=.
+MAN_PATH=misc
 
 MAX_TIME=1
 RUN=./ # If you want java as default set JAVA=true instead.
