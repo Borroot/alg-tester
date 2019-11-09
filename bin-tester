@@ -63,9 +63,13 @@ done
 # since it uses the variable for PROGRAM.
 if [[ $JAVA = true ]] 
 then
-	[[ $(grep ".jar" <<< $(basename $PROGRAM)) ]] && JAR="-jar"
-	RUN="java $JAR -classpath $(dirname $PROGRAM) "
-	PROGRAM="$(basename $PROGRAM)"
+	if [[ $(grep ".jar" <<< $(basename $PROGRAM)) ]] 
+	then
+		RUN="java -jar "
+	else
+		RUN="java -classpath $(dirname $PROGRAM) "
+		PROGRAM="$(basename $PROGRAM)"
+	fi
 fi
 
 # If the program we are trying to run is C++ and we have an absolute path
