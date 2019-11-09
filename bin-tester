@@ -63,6 +63,7 @@ done
 # since it uses the variable for PROGRAM.
 if [[ $JAVA = true ]] 
 then
+	# Detect whether a jar file is used.
 	if [[ $(grep ".jar" <<< $(basename $PROGRAM)) ]] 
 	then
 		RUN="java -jar "
