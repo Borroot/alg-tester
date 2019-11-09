@@ -63,7 +63,7 @@ done
 # since it uses the variable for PROGRAM.
 if [[ $JAVA = true ]] 
 then
-	[[ $(grep ".jar" <<< $(basename $PROGRAM) ]] && JAR="-jar"
+	[[ $(grep ".jar" <<< $(basename $PROGRAM)) ]] && JAR="-jar"
 	RUN="java $JAR -classpath $(dirname $PROGRAM) "
 	PROGRAM="$(basename $PROGRAM)"
 fi
