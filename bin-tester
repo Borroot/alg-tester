@@ -27,8 +27,8 @@ then
 fi
 
 # Options for user input parsing.
-OPTIONS=p:s:m:dxcjz23h
-LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,jar,python2,python3,help
+OPTIONS=p:s:m:dxcj23h
+LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python2,python3,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -52,7 +52,6 @@ while true; do
 		-x|--extras)    STATS=true                   ; shift   ;;
 		-c|--cpp)       RUN=./                       ; shift   ;;
 		-j|--java)      JAVA=true                    ; shift   ;; 
-		-z|--jar)       JAR="-jar" ; JAVA=true       ; shift   ;;
 		-2|--python2)   RUN="python2 "               ; shift   ;;
 		-3|--python3)   RUN="python3 "               ; shift   ;;
 		-h|--help)      man "$MAN_PATH"/bin-tester.1 ; exit 0  ;;
@@ -64,6 +63,7 @@ done
 # since it uses the variable for PROGRAM.
 if [[ $JAVA = true ]] 
 then
+	[[ $(grep ".jar" <<< $(basename $PROGRAM) ]] && JAR="-jar"
 	RUN="java $JAR -classpath $(dirname $PROGRAM) "
 	PROGRAM="$(basename $PROGRAM)"
 fi
