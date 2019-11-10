@@ -3,3 +3,6 @@ This is an automated testing tool to check your solution for the bin placement p
 
 # Docker
 This repository also includes a `Dockerfile` from where you can run either a `Python` or `C++` (default) program. If you want `Python` just change some variables in the `Dockerfile`. You can also change the options here you want to pass to the `bin-tester`, see the example in the `Dockerfile`. To run the dockerfile you can use `bin-tester-docker`.
+
+# Double samples
+The `sample` folder contains some samples which are the same, but since the removal and renaming causes confusion I kept them in there. You can see the double samples by running the `show-double-samples` script in the `misc` folder.
