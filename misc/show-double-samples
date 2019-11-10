@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
+
 # AUTHOR: Bram Pulles
 # This program can be used to identify all the duplicate samples.
 
 # I used it in particular to remove all the duplicates. It is easy
 # to extend this program for other uses.
 
-folder="samples"
+folder="${1:-../samples}"
 
-inputs=()
+inputs=($(ls "$folder"/*.in))
 
 count=0
 
-for ((i = 1; i <= 0; i++)) 
+for ((i = 1; i <= ${#inputs}; i++)) 
 do
-	for ((j = i+1; j <= 0; j++))
+	for ((j = i+1; j <= ${#inputs}; j++))
 	do
-		diff   > /dev/null
-		if [[ 2 -ne 1 ]] 
+		diff ${inputs[i]} ${inputs[j]} > /dev/null
+		if [[ $? -ne 1 ]] 
 		then
 			let count++
-			echo -e "\t<->   " 
+			echo -e "${inputs[i]#*/}\t<->   ${inputs[j]#*/}" 
 		fi
 	done
 done
 
-echo "There are  double(s)."
+echo "There are $count double(s)."
