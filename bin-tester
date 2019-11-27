@@ -92,6 +92,9 @@ NORMAL=$(tput sgr0)
 temp_time_result=$(mktemp)
 temp_stderr_file=$(mktemp)
 
+# Catch an interrupt signal and remove the temporary files.
+trap "rm -f $temp_time_result $temp_stderr_file; exit" INT TERM
+
 # Initialize statistics value.
 correct=0
 total_time=0
