@@ -3,7 +3,7 @@
 
 # Default values.
 PROGRAM=../solver
-SAMPLES_PATH=bin-samples
+SAMPLES_PATH=match-samples
 MAN_PAGE=misc/alg-tester.1
 
 MAX_TIME=1
@@ -90,18 +90,30 @@ temp_time_result=$(mktemp)
 temp_stderr_file=$(mktemp)
 
 # Catch an interrupt signal and remove the temporary files.
-trap "rm -f $temp_time_result $temp_stderr_file; exit" INT TERM
+trap "rm -f $temp_time_result $temp_stderr_file; exit 1" INT TERM
 
 # Initialize statistics value.
 correct=0
 total_time=0
 
+# Set the printf variables to their default values.
+function PRINTF_RESET {
+	PF_INPUT=%-18s
+	PF_OUTPUT=%-15s
+	PF_ANSWER=%-15s
+	PF_TIME=%-8s
+}
+PRINTF_RESET
+
 # Draw a nice header.
-echo -e "${BOLD}INPUT\t\tOUTPUT\t\tANSWER\t\tTIME (s)$NORMAL"
+printf "${BOLD}$PF_INPUT$PF_OUTPUT$PF_ANSWER$PF_TIME\n$NORMAL" INPUT OUTPUT ANSWER 'TIME (s)'
 
 # Run the solver on all the samples in the samples folder.
 for input in $(ls "$SAMPLES_PATH"/*.in) 
 do
+	# Reset the printf variable colors.
+	PRINTF_RESET
+
 	# Set the answer file and answer from this file.
 	answer_file="${input%in}out"
 	answer="$(< $answer_file)"
@@ -110,29 +122,28 @@ do
 	stdout="$( ( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file ) 2> $temp_time_result)"
 	stderr="$(< $temp_stderr_file)"
 
-	# Filter the time the program took and add this to the total time.
+	# Filter the time the program took.
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/0m//' | tr -d s)"
-	colored_time=$time
 
 	# Check if there was a time-out or error.
-	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'" && "'$MAX_TIME'" != "0")}') )) && colored_time="$RED$time$RESET" && stdout="TIME-OUT"
+	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'" && "'$MAX_TIME'" != "0")}') )) && PF_TIME="$RED$PF_TIME$RESET" && stdout="TIME-OUT"
 	[[ "$stdout" == "" ]] && stdout="ERROR\t"
 
 	# Check if the answer is correct and set colors and variables accordingly.
 	if [[ "$stdout" == "$answer" ]]
 	then
-		stdout="$GREEN$stdout$RESET"
+		PF_OUTPUT="$GREEN$PF_OUTPUT$RESET"
 		let correct++
 		[[ *m* != $time ]] && let total_time="total_time + $(tr -d ',.' <<< $time | sed 's/^0*//g')"
 	else
-		stdout="$RED$stdout$RESET"
+		PF_OUTPUT="$RED$PF_OUTPUT$RESET"
 	fi
 
 	# Remove preceding path from input file.
 	input_file=${input##*/}
 
 	# Print answer and debug info if the debug variable is set.
-	echo -e "$input_file\t$stdout\t$answer\t$colored_time"
+	printf "$PF_INPUT$PF_OUTPUT$PF_ANSWER$PF_TIME\n" "$input_file" "$stdout" "$answer" $time
 	[[ $DEBUG = true ]] && [[ "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET" >&2
 done
 
