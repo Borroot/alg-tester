@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+docker build -t alg-tester-build .
+docker run --name alg-tester-container alg-tester-build
+docker rm alg-tester-container

@@ -6,7 +6,7 @@
 # I used it in particular to remove all the duplicates. It is easy
 # to extend this program for other uses.
 
-folder="${1:-../samples}"
+folder="${1:-../bin-samples}"
 inputs=($(ls "$folder"/*.in))
 count=0
 

@@ -3,8 +3,8 @@
 
 # Default values.
 PROGRAM=../solver
-SAMPLES_PATH=samples
-MAN_PATH=misc
+SAMPLES_PATH=bin-samples
+MAN_PAGE=misc/alg-tester.1
 
 MAX_TIME=1
 RUN=./ # If you want java as default set JAVA=true instead.
@@ -12,7 +12,7 @@ RUN=./ # If you want java as default set JAVA=true instead.
 DEBUG=false
 STATS=true
 
-# Check if the current version is up-to-date with upstream.
+# Check if the current version is up-to-date with upstream, if not show a message.
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "$BRANCH" == "master" ]] && $(timeout 1 git fetch 2> /dev/null)
@@ -54,7 +54,7 @@ while true; do
 		-j|--java)      JAVA=true                    ; shift   ;; 
 		-2|--python2)   RUN="python2 "               ; shift   ;;
 		-3|--python3)   RUN="python3 "               ; shift   ;;
-		-h|--help)      man "$MAN_PATH"/bin-tester.1 ; exit 0  ;;
+		-h|--help)      man "$MAN_PAGE"              ; exit 0  ;;
 		--)             shift                        ; break   ;;
 	esac
 done
@@ -75,10 +75,7 @@ fi
 
 # If the program we are trying to run is C++ and we have an absolute path
 # then we do not want to have RUN=./ but RUN=
-if [[ $PROGRAM == /* && $RUN == "./" ]]
-then
-	RUN=""
-fi
+[[ $PROGRAM == /* && $RUN == "./" ]] && RUN=""
 
 # Colors and fonts.
 GREEN='\e[32m'
