@@ -3,7 +3,7 @@
 
 # Default values.
 PROGRAM=../solver
-SAMPLES_PATH=match-samples
+SAMPLES=match-samples
 MAN_PAGE=misc/alg-tester.1
 
 MAX_TIME=1
@@ -32,21 +32,21 @@ LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python2,python3,help
 
 # Parse the options given by the user with getopt and format them correctly.
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
-parsed_correctly=$?
+PARSED_GOOD=$?
 eval set -- "$PARSED"
 
 # If getopt gives an error then quit and show help.
-if [ $parsed_correctly -ne 0 ]
+if  (( $PARSED_GOOD != 0 ))
 then
 	echo "Use the option -h or --help for more information."
-	exit $parsed_correctly
+	exit $PARSED_GOOD
 fi
 
 # Parse options until '--'.
 while true; do 
 	case "$1" in
 		-p|--program)   PROGRAM="$2"                 ; shift 2 ;;
-		-s|--samples)   SAMPLES_PATH="$2"            ; shift 2 ;;
+		-s|--samples)   SAMPLES="$2"                 ; shift 2 ;;
 		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
 		-d|--debug)     DEBUG=true                   ; shift   ;;
 		-x|--extras)    STATS=true                   ; shift   ;;
@@ -109,7 +109,7 @@ PRINTF_RESET
 printf "${BOLD}$PF_INPUT$PF_OUTPUT$PF_ANSWER$PF_TIME\n$NORMAL" INPUT OUTPUT ANSWER 'TIME (s)'
 
 # Run the solver on all the samples in the samples folder.
-for input in $(ls "$SAMPLES_PATH"/*.in) 
+for input in $(ls "$SAMPLES"/*.in) 
 do
 	# Reset the printf variable colors.
 	PRINTF_RESET
@@ -127,7 +127,7 @@ do
 
 	# Check if there was a time-out or error.
 	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'" && "'$MAX_TIME'" != "0")}') )) && PF_TIME="$RED$PF_TIME$RESET" && stdout="TIME-OUT"
-	[[ "$stdout" == "" ]] && stdout="ERROR\t"
+	[[ "$stdout" == "" ]] && stdout="ERROR"
 
 	# Check if the answer is correct and set colors and variables accordingly.
 	if [[ "$stdout" == "$answer" ]]
@@ -148,8 +148,8 @@ do
 done
 
 # Print the statistics.
-TOTAL=$(ls "$SAMPLES_PATH"/*.in | wc -l)
-[[ $STATS = true ]] && echo -e You have answered $correct out of $TOTAL correctly in an average time of $(( $total_time / $TOTAL ))ms.
+TOTAL=$(ls "$SAMPLES"/*.in | wc -l)
+[[ $STATS = true ]] && echo -e You answered $correct/$TOTAL correct in an average time of $(( $total_time / $TOTAL )) ms.
 
 # Remove the temporary files.
 rm -f $temp_time_result $temp_stderr_file
