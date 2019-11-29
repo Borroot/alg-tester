@@ -2,7 +2,7 @@
 # AUTHOR: Bram Pulles
 
 # Default values.
-PROGRAM=../solver
+PROGRAM=alg-solver
 SAMPLES=match-samples
 MAN_PAGE=misc/alg-tester.1
 
