@@ -1,7 +1,19 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-brew install gtimeout
-brew install gnu-getopt
-brew link --force gnu-getopt
+# Check if the user is running on MacOS.
+if [[ $(uname) == Darwin ]]
+then 
+	# Check if the person has brew.
+	if brew help 2> /dev/null
+	then
+		# Install getopt.
+		brew list gnu-getopt 2> /dev/null || brew install gnu-getopt 
+				&& brew link --force gnu-getopt
 
-# change timeout -> gtimeout
+		# Install timeout.
+		brew list coreutils  2> /dev/null || brew install coreutils
+				&& sudo ln -s /usr/local/bin/gtimeout /usr/local/bin/timeout
+	else
+		echo Please install brew.
+	fi
+fi
