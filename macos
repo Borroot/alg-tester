@@ -7,10 +7,22 @@ then
 	if brew -v
 	then
 		# Install getopt.
-		brew list gnu-getopt 2> /dev/null || (brew install gnu-getopt && echo 'export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"' >> ~/.bash_profile && source ~/.bash_profile && brew link --force gnu-getopt) 
+		if ! brew list gnu-getopt 2> /dev/null 
+		then
+			brew install gnu-getopt 
+			echo 'export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"' >> ~/.bash_profile 
+			export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+			brew link --force gnu-getopt
+		fi
 
 		# Install timeout.
-		brew list coreutils  2> /dev/null || brew install coreutils && sudo ln -s /usr/local/bin/gtimeout /usr/local/bin/timeout
+		if ! brew list coreutils 2> /dev/null 
+		then
+			brew install coreutils 
+			echo Now we will link 'gtimemout' to 'timeout' since this is the name in Linux.
+			echo In order to do this you password will be asked.
+			sudo ln -s /usr/local/bin/gtimeout /usr/local/bin/timeout
+		fi
 	else
 		echo Please install brew.
 	fi
