@@ -64,7 +64,7 @@ done
 if [[ $JAVA = true ]] 
 then
 	# Detect whether a jar file is used.
-	if [[ *.jar == $(basename $PROGRAM) ]] 
+	if echo "$PROGRAM" | grep '[\s\S]*.jar'
 	then
 		RUN="java -jar "
 	else
