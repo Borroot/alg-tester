@@ -124,10 +124,17 @@ do
 
 	# Filter the time the program took.
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/0m//' | tr -d s)"
+	max_time="$(tr -d 'smhd' <<< $MAX_TIME)"
 
 	# Check if there was a time-out or error.
-	(( $(awk 'BEGIN {print ("'$time'" >= "'$MAX_TIME'" && "'$MAX_TIME'" != "0")}') )) && PF_TIME="$RED$PF_TIME$RESET" && stdout="TIME-OUT"
-	[[ "$stdout" == "" ]] && stdout="ERROR"
+	if [[ $(awk 'BEGIN {print ("'$time'" >= "'$max_time'" && "'$max_time'" != "0")}') == 1 ]]
+	then
+		PF_TIME="$RED$PF_TIME$RESET" 
+		stdout="TIME-OUT"
+	elif [[ "$stdout" == "" ]] 
+	then
+		stdout="ERROR"
+	fi
 
 	# Check if the answer is correct and set colors and variables accordingly.
 	if [[ "$stdout" == "$answer" ]]
