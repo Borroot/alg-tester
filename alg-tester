@@ -1,60 +1,36 @@
 #!/usr/bin/env bash
 # AUTHOR: Bram Pulles
 
-# Default values.
-PROGRAM=alg-solver
-SAMPLES=match-samples
-MAN_PAGE=misc/alg-tester.1
-
-MAX_TIME=1
-RUN=./ # If you want java as default set JAVA=true instead.
-
-DEBUG=false
-STATS=true
+source defaults
 
 # Check if the current version is up-to-date with upstream, if not show a message.
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-if [[ "$BRANCH" == "master" ]] && $(timeout 1 git fetch 2> /dev/null)
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$branch" == "master" ]] && $(timeout 1 git fetch 2> /dev/null)
 then
-	HEADHASH=$(git rev-parse HEAD)
-	UPSTREAMHASH=$(git rev-parse master@{upstream})
+	headhash=$(git rev-parse HEAD)
+	upstreamhash=$(git rev-parse master@{upstream})
 
-	if [[ "$HEADHASH" != "$UPSTREAMHASH" ]]
+	if [[ "$headhash" != "$upstreamhash" ]]
 	then
 		echo There has been a new update upstream. Please type in \`git pull\` to update your version.
 	fi
 fi
 
-# Options for user input parsing.
-OPTIONS=p:s:m:dxcj3h
-LONGOPTS=program:,samples:,max-time:,debug,extras,cpp,java,python3,help
+TMP=$(getopt "p:s:m:dxcj3h" "$@") || exit 1
+eval set -- "$TMP"
 
-# Parse the options given by the user with getopt and format them correctly.
-PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
-PARSED_GOOD=$?
-eval set -- "$PARSED"
-
-# If getopt gives an error then quit and show help.
-if  (( $PARSED_GOOD != 0 ))
-then
-	echo "Use the option -h or --help for more information."
-	exit $PARSED_GOOD
-fi
-
-# Parse options until '--'.
 while true; do 
 	case "$1" in
-		-p|--program)   PROGRAM="$2"                 ; shift 2 ;;
-		-s|--samples)   SAMPLES="$2"                 ; shift 2 ;;
-		-m|--max-time)  MAX_TIME="$2"                ; shift 2 ;;
-		-d|--debug)     DEBUG=true                   ; shift   ;;
-		-x|--extras)    STATS=true                   ; shift   ;;
-		-c|--cpp)       RUN=./                       ; shift   ;;
-		-j|--java)      JAVA=true                    ; shift   ;; 
-		-3|--python3)   RUN="python3 "               ; shift   ;;
-		-h|--help)      man "$MAN_PAGE"              ; exit 0  ;;
-		--)             shift                        ; break   ;;
+		-p)  PROGRAM="$2"                 ; shift 2 ;;
+		-s)  SAMPLES="$2"                 ; shift 2 ;;
+		-m)  MAX_TIME="$2"                ; shift 2 ;;
+		-d)  DEBUG=true                   ; shift   ;;
+		-x)  STATS=true                   ; shift   ;;
+		-c)  RUN=./                       ; shift   ;;
+		-j)  JAVA=true                    ; shift   ;; 
+		-3)  RUN="python3 "               ; shift   ;;
+		-h)  man "$MAN_PAGE"              ; exit 0  ;;
+		--)  shift                        ; break   ;;
 	esac
 done
 
@@ -72,7 +48,7 @@ then
 	fi
 fi
 
-# If the program we are trying to run is C++ and we have an absolute path
+# If the PROGRAM we are trying to run is C++ and we have an absolute path
 # then we do not want to have RUN=./ but RUN=
 [[ $PROGRAM == /* && $RUN == "./" ]] && RUN=""
 
@@ -107,7 +83,7 @@ PRINTF_RESET
 # Draw a nice header.
 printf "${BOLD}$PF_INPUT$PF_OUTPUT$PF_ANSWER$PF_TIME\n$NORMAL" INPUT OUTPUT ANSWER 'TIME (s)'
 
-# Run the solver on all the samples in the samples folder.
+# Run the PROGRAM on all the samples in the samples folder.
 for input in $(ls "$SAMPLES"/*.in) 
 do
 	# Reset the printf variable colors.
@@ -117,11 +93,11 @@ do
 	answer_file="${input%in}out"
 	answer="$(< $answer_file)"
 
-	# Run the program and set the stdout and stderr outputs.
+	# Run the PROGRAM and set the stdout and stderr outputs.
 	stdout="$( ( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $temp_stderr_file ) 2> $temp_time_result)"
 	stderr="$(< $temp_stderr_file)"
 
-	# Filter the time the program took.
+	# Filter the time the PROGRAM took.
 	time="$(grep real < $temp_time_result | awk '{print $2}' | sed 's/0m//' | tr -d s)"
 	max_time="$(tr -d 'smhd' <<< $MAX_TIME)"
 
