@@ -1,0 +1,84 @@
+." Manpage for the alg-tester
+.TH alg-tester 1 "31 October 2019" "version 1.0"
+.SH NAME
+alg-tester - an automated testing tool that got out of hand
+.SH SYNOPSIS
+.B alg-solver
+[-p <path>]
+[-s <path>]
+[-m <value>]
+[-d]
+[-x]
+[-c]
+[-j]
+[-3]
+[-h]
+.SH DESCRIPTION
+.B alg-tester
+is an automated testing tool made for a university project. This tester uses a samples directory which specifies input files with corresponding output files. The input files are written through
+.B STDIN
+to a
+.B alg-solver
+of choice. The
+.B alg-solver
+then produces an answer which is written to
+.BR STDOUT , 
+this answer is checked against the corresponding output file. If the answer is correct it will be shown as green if not then red. The
+.B alg-tester
+is also able to interrupt the
+.B alg-solver
+when it is taking to long for a certain case. You can furthermore show the
+.B STDERR
+output and the program has some primitive error detection for the
+.BR alg-solver .
+Default settings can be changed at the top of the
+.B alg-solver
+script.
+.SH OPTIONS
+.TP
+-p <path>
+Specify the path to your
+.BR alg-solver .
+.TP
+-s <path>
+Specify the path to your samples folder. The samples folder should contain input files with the suffix '.in' and output files with the suffix '.out'. The prefix need to be the same for the input and output file e.g. 'A.in' and 'A.out'.
+.TP
+-m <value>
+Specify the max time your
+.B alg-solver
+is allowed to take to solve one sample. Use a optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days if you are a real enthusiast. A duration of 0 disables the timeout altogether. Note that only times under one minute are used in the computation of the statistics.
+.TP
+-d
+Print everything your 
+.B alg-solver
+is writing to
+.BR STDERR .
+.TP
+-x
+Enable extra statistics, this is enabled by default. Note that the time shown at the end includes only correct answers.
+.TP
+-c
+Run a C++
+.BR alg-solver .
+.TP
+-j
+Run a Java
+.BR alg-solver .
+It automatically detects jar files.
+.TP
+-3
+Run a python3
+.BR alg-solver .
+.TP
+-h
+Show this man page.
+.SH REPORTING BUGS
+Report issues or create pull request at GitHub:
+
+https://github.com/Borroot/alg-tester/issues
+.SH AUTHOR
+Bram Pulles <borroot@live.nl>
+.SH SEE ALSO
+.BR bin-solver (1)
+
+https://github.com/Borroot/bin-solver

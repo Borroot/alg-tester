@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# AUTHOR: Bram Pulles
+
+PROGRAM=alg-solver            # Your algorithm solver program.
+SAMPLES=samples/match-actors  # The samples folder.
+
+RUN=./ # If you want java as default set JAVA=true instead.
+MAX_TIME=1
+
+DEBUG=false
+STATS=true
+
+MAN_PAGE=alg-tester.1         # The man page location, do not change this.
