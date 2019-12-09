@@ -8,4 +8,4 @@ TYPE=cpp                        # Program type: 'cpp', 'java' or 'python'.
 MAX_TIME=1                      # The max time for one sample.
 
 STATS=true                      # Show stats at the end of the run.
-VERBOSE=false                   # Show stderr output of the program.
+DEBUG=false                   # Show stderr output of the program.

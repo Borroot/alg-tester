@@ -10,10 +10,11 @@ readonly BOLD='\e[1m'
 readonly RESET='\e[0m'
 
 readonly MAN_PAGE=./alg-tester.1
+readonly VERSION='2.0'
 
 parse_options ()
 {
-	TMP=$(getopt "p:s:m:vxcj3h" "$@") || exit 1
+	TMP=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
 	eval set -- "$TMP"
 
 	while true; do
@@ -25,7 +26,8 @@ parse_options ()
 			-j)  TYPE=java                    ; shift   ;;
 			-3)  TYPE=python                  ; shift   ;;
 			-x)  STATS=true                   ; shift   ;;
-			-v)  VERBOSE=true                 ; shift   ;;
+			-d)  DEBUG=true                   ; shift   ;;
+			-v)  echo "version $VERSION"      ; exit 0  ;;
 			-h)  man "$MAN_PAGE"              ; exit 0  ;;
 			--)  shift                        ; break   ;;
 		esac
@@ -133,7 +135,7 @@ print_round ()
 	local input_file=${input##*/}
 
 	printf "$format\n" "$input_file" "$stdout" "$answer" "$time"
-	[[ $VERBOSE == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
+	[[ $DEBUG == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
 }
 
 print_stats ()

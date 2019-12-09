@@ -1,5 +1,5 @@
 ." AUTHOR: Bram Pulles
-.TH alg-tester 1 "31 October 2019" "version 1.0"
+.TH alg-tester 1 "9 December 2019" "version 2.0"
 .SH NAME
 alg-tester - an automated testing tool that got out of hand
 .SH SYNOPSIS
@@ -7,11 +7,12 @@ alg-tester - an automated testing tool that got out of hand
 [-p <path>]
 [-s <path>]
 [-m <value>]
-[-v]
+[-d]
 [-x]
 [-c]
 [-j]
 [-3]
+[-v]
 [-h]
 .SH DESCRIPTION
 .B alg-tester
@@ -46,11 +47,12 @@ Specify the max time your
 .B alg-solver
 is allowed to take to solve one sample. Use a optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days if you are a real enthusiast. A duration of 0 disables the timeout altogether. Note that only times under one minute are used in the computation of the statistics.
 .TP
--v
-Be verbose, print everything your 
+-d
+Print everything your 
 .B alg-solver
 is writing to
 .BR STDERR .
+All of your debug information from the solver should go there.
 .TP
 -x
 Enable extra statistics, this is enabled by default. Note that the time shown at the end includes only correct answers.
@@ -67,6 +69,9 @@ It automatically detects jar files.
 -3
 Run a Python3
 .BR alg-solver .
+.TP
+-v
+Show the current version.
 .TP
 -h
 Show this man page.
