@@ -13,7 +13,7 @@ readonly MAN_PAGE=./alg-tester.1
 
 parse_options ()
 {
-	local TMP=$(getopt "p:s:m:vxcj3h" "$@") || exit 1
+	TMP=$(getopt "p:s:m:vxcj3h" "$@") || exit 1
 	eval set -- "$TMP"
 
 	while true; do
@@ -63,7 +63,7 @@ process_options ()
 		cpp   )  process_cpp    ;;
 		java  )  process_java   ;;
 		python)  process_python ;;
-		*) echo "Language \'$TYPE\' not supported."; exit 1
+		*) >&2 echo "Language '$TYPE' not supported."; exit 1
 	esac
 }
 
@@ -128,7 +128,7 @@ print_round ()
 	local input_file=${input##*/}
 
 	printf "$format\n" "$input_file" "$stdout" "$answer" "$time"
-	[[ $VERBOSE == true && "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET" >&2
+	[[ $VERBOSE == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
 }
 
 print_stats ()
