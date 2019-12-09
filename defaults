@@ -5,7 +5,7 @@ PROGRAM=                        # Your algorithm solver program.
 SAMPLES=samples/actor-matching  # The samples folder.
 
 TYPE=cpp                        # Program type: 'cpp', 'java' or 'python'.
-MAX_TIME=1                      # The max time for one sample.
+MAX_TIME=1s                     # The max time for one sample.
 
 STATS=true                      # Show stats at the end of the run.
-DEBUG=false                   # Show stderr output of the program.
+DEBUG=false                     # Show stderr output of the program.
