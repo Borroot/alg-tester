@@ -61,6 +61,10 @@ process_python ()
 
 process_options ()
 {
+	[[ "$PROGRAM"  == "" ]] && >&2 echo "Please provide a program."        && exit 1
+	[[ "$SAMPLES"  == "" ]] && >&2 echo "Please provide a samples folder." && exit 1
+	[[ "$MAX_TIME" == "" ]] && >&2 echo "Please provide a max time."       && exit 1
+
 	case "$TYPE" in
 		cpp   )  process_cpp    ;;
 		java  )  process_java   ;;
@@ -97,6 +101,8 @@ process_round ()
 
 check_for_updates ()
 {
+	[[ $CHECK_FOR_UPDATES == false ]] && return
+
 	local branch=$(git rev-parse --abbrev-ref HEAD)
 	if [[ "$branch" == "master" ]] && $(timeout .5 git fetch 2> /dev/null)
 	then
@@ -149,9 +155,9 @@ cleanup ()
 	rm -f $tmp_time_file $tmp_stderr_file
 }
 
-check_for_updates
 parse_options "$@"
 process_options
+check_for_updates
 
 correct=0
 total_time=0

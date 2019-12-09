@@ -9,3 +9,5 @@ MAX_TIME=1s                     # The max time for one sample.
 
 STATS=true                      # Show stats at the end of the run.
 DEBUG=false                     # Show stderr output of the program.
+
+CHECK_FOR_UPDATES=true          # Automatically check for updates.
