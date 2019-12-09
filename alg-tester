@@ -69,23 +69,28 @@ process_options ()
 
 process_round ()
 {
-	# TODO make this cleaner
-	max_time="$(tr -d 'smhd' <<< $MAX_TIME)"
-
-	if [[ "$stdout" == "$answer" ]]; then
+	if [[ "$stdout" == "$answer" ]]
+	then
 		format_output="$GREEN$format_output$RESET"
-		[[ *m* != $time ]] && let total_time="total_time + $(tr -d ',.' <<< $time | sed 's/^0*//g')"
-	elif [[ $(awk 'BEGIN {print ("'$time'" >= "'$max_time'" && "'$max_time'" != "0")}') == 1 ]]
+
+		round_time=$(tr -d ',.' <<< $time | sed 's/^0*//g')
+		[[ *m* != $time ]] && let total_time+=round_time
+
+		let correct++
+		return
+	fi
+
+	format_output="$RED$format_output$RESET"
+	local _MAX_TIME=$(tr -d 'smhd' <<< $MAX_TIME)
+
+	if [[ $(awk "BEGIN {print ($time >= $_MAX_TIME && $_MAX_TIME != 0)}") == 1 ]]
 	then
 		format_time="$RED$format_time$RESET"
 		stdout="TIME-OUT"
-	elif [[ "$stdout" == "" ]]
-	then
-		stdout="ERROR"
-	else
-		format_output="$RED$format_output$RESET"
+		return
 	fi
 
+	[[ "$stdout" == "" ]] && stdout="ERROR"
 }
 
 check_for_updates ()
@@ -166,8 +171,6 @@ do
 	stdout="$( ( time timeout $MAX_TIME $RUN < $input 2> $tmp_stderr_file ) 2> $tmp_time_file)"
 	stderr="$(< $tmp_stderr_file)"
 	time="$(grep real < $tmp_time_file | awk '{print $2}' | sed 's/0m//' | tr -d s)"
-
-	[[ "$stdout" == "$answer" ]] && let correct++
 
 	process_round
 	print_round

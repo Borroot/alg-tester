@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # AUTHOR: Bram Pulles
 
-PROGRAM=alg-solver            # Your algorithm solver program.
-SAMPLES=samples/match-actors  # The samples folder.
+PROGRAM=                        # Your algorithm solver program.
+SAMPLES=samples/actor-matching  # The samples folder.
 
-TYPE=cpp                      # Program type: 'cpp', 'java' or 'python'.
-MAX_TIME=1                    # The max time for one sample.
+TYPE=cpp                        # Program type: 'cpp', 'java' or 'python'.
+MAX_TIME=1                      # The max time for one sample.
 
-STATS=true                    # Show stats at the end of the run.
-VERBOSE=false                 # Show stderr output of the program.
+STATS=true                      # Show stats at the end of the run.
+VERBOSE=false                   # Show stderr output of the program.
