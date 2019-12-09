@@ -3,25 +3,89 @@
 
 source defaults
 
+readonly GREEN='\e[32m'
+readonly RED='\e[31m'
+readonly DIM='\e[2m'
+readonly BOLD='\e[1m'
+readonly RESET='\e[0m'
+
+readonly MAN_PAGE=./alg-tester.1
+
 parse_options ()
 {
-	local TMP=$(getopt "p:s:m:dxcj3h" "$@") || exit 1
+	local TMP=$(getopt "p:s:m:vxcj3h" "$@") || exit 1
 	eval set -- "$TMP"
 
-	while true; do 
+	while true; do
 		case "$1" in
 			-p)  PROGRAM="$2"                 ; shift 2 ;;
 			-s)  SAMPLES="$2"                 ; shift 2 ;;
 			-m)  MAX_TIME="$2"                ; shift 2 ;;
-			-d)  DEBUG=true                   ; shift   ;;
+			-c)  TYPE=cpp                     ; shift   ;;
+			-j)  TYPE=java                    ; shift   ;;
+			-3)  TYPE=python                  ; shift   ;;
 			-x)  STATS=true                   ; shift   ;;
-			-c)  RUN=./                       ; shift   ;;
-			-j)  JAVA=true                    ; shift   ;; 
-			-3)  RUN="python3 "               ; shift   ;;
+			-v)  VERBOSE=true                 ; shift   ;;
 			-h)  man "$MAN_PAGE"              ; exit 0  ;;
 			--)  shift                        ; break   ;;
 		esac
 	done
+}
+
+process_cpp ()
+{
+	if [[ "$PROGRAM" =~ ^/ ]]
+	then
+		RUN="$PROGRAM"   # absolute path
+	else
+		RUN="./$PROGRAM" # relative path
+	fi
+}
+
+process_java ()
+{
+	if [[ "$PROGRAM" =~ .jar$ ]]
+	then
+		RUN="java -jar $PROGRAM"
+	else
+		RUN="java -classpath $(dirname $PROGRAM) $(basename $PROGRAM)"
+	fi
+}
+
+process_python ()
+{
+	RUN="python3 $PROGRAM"
+}
+
+process_options ()
+{
+	case "$TYPE" in
+		cpp   )  process_cpp    ;;
+		java  )  process_java   ;;
+		python)  process_python ;;
+		*) echo "Language \'$TYPE\' not supported."; exit 1
+	esac
+}
+
+process_round ()
+{
+	# TODO make this cleaner
+	max_time="$(tr -d 'smhd' <<< $MAX_TIME)"
+
+	if [[ "$stdout" == "$answer" ]]; then
+		format_output="$GREEN$format_output$RESET"
+		[[ *m* != $time ]] && let total_time="total_time + $(tr -d ',.' <<< $time | sed 's/^0*//g')"
+	elif [[ $(awk 'BEGIN {print ("'$time'" >= "'$max_time'" && "'$max_time'" != "0")}') == 1 ]]
+	then
+		format_time="$RED$format_time$RESET"
+		stdout="TIME-OUT"
+	elif [[ "$stdout" == "" ]]
+	then
+		stdout="ERROR"
+	else
+		format_output="$RED$format_output$RESET"
+	fi
+
 }
 
 check_for_updates ()
@@ -47,30 +111,30 @@ format_init ()
 	format_time=%-8s
 }
 
-format_all ()
+format_compose ()
 {
 	format="$format_input$format_output$format_answer$format_time"
 }
 
 print_header ()
 {
-	format_all
+	format_compose
 	printf "$BOLD$format\n$RESET" INPUT OUTPUT ANSWER 'TIME (s)'
 }
 
 print_round ()
 {
-	format_all
+	format_compose
 	local input_file=${input##*/}
 
 	printf "$format\n" "$input_file" "$stdout" "$answer" "$time"
-	[[ $DEBUG == true && "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET" >&2
+	[[ $VERBOSE == true && "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET" >&2
 }
 
 print_stats ()
 {
 	amount=$(ls "$SAMPLES"/*.in | wc -l)
-	[[ $STATS == true ]] && echo -e You answered $correct/$amount correct in an average time of $(( $total_time / $amount )) ms.
+	[[ $STATS == true ]] && echo -e You answered $correct/$amount correct in an average time of $(($total_time / $amount)) ms.
 }
 
 cleanup ()
@@ -80,67 +144,32 @@ cleanup ()
 
 check_for_updates
 parse_options "$@"
-
-# TODO make this cleaner
-# We need to set this after all the other options have been passed
-# since it uses the variable for PROGRAM.
-if [[ $JAVA = true ]] 
-then
-	if grep '[\s\S]*.jar' <<< "$PROGRAM"
-	then
-		RUN="java -jar "
-	else
-		RUN="java -classpath $(dirname $PROGRAM) "
-		PROGRAM="$(basename $PROGRAM)"
-	fi
-fi
-
-# If the PROGRAM we are trying to run is C++ and we have an absolute path
-# then we do not want to have RUN=./ but RUN=
-[[ $PROGRAM == /* && $RUN == "./" ]] && RUN=""
-
-tmp_time_file=$(mktemp)
-tmp_stderr_file=$(mktemp)
-
-# Catch an interrupt signal and remove the tmporary files.
-trap "cleanup; exit 1" INT TERM
+process_options
 
 correct=0
 total_time=0
 
+tmp_time_file=$(mktemp)
+tmp_stderr_file=$(mktemp)
+trap "cleanup; exit 1" INT TERM
+
 format_init
 print_header
 
-for input in $(ls "$SAMPLES"/*.in) 
+for input in $(ls "$SAMPLES"/*.in)
 do
 	format_init
 
 	answer_file="${input%in}out"
 	answer="$(< $answer_file)"
 
-	stdout="$( ( time timeout $MAX_TIME $RUN$PROGRAM < $input 2> $tmp_stderr_file ) 2> $tmp_time_file)"
+	stdout="$( ( time timeout $MAX_TIME $RUN < $input 2> $tmp_stderr_file ) 2> $tmp_time_file)"
 	stderr="$(< $tmp_stderr_file)"
 	time="$(grep real < $tmp_time_file | awk '{print $2}' | sed 's/0m//' | tr -d s)"
 
 	[[ "$stdout" == "$answer" ]] && let correct++
 
-	max_time="$(tr -d 'smhd' <<< $MAX_TIME)"
-
-	# TODO fix this
-	if [[ "$stdout" == "$answer" ]]; then
-		format_output="$GREEN$format_output$RESET"
-		[[ *m* != $time ]] && let total_time="total_time + $(tr -d ',.' <<< $time | sed 's/^0*//g')"
-	elif [[ $(awk 'BEGIN {print ("'$time'" >= "'$max_time'" && "'$max_time'" != "0")}') == 1 ]]
-	then
-		format_time="$RED$format_time$RESET" 
-		stdout="TIME-OUT"
-	elif [[ "$stdout" == "" ]] 
-	then
-		stdout="ERROR"
-	else
-		format_output="$RED$format_output$RESET"
-	fi
-
+	process_round
 	print_round
 done
 

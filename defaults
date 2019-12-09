@@ -4,17 +4,8 @@
 PROGRAM=alg-solver            # Your algorithm solver program.
 SAMPLES=samples/match-actors  # The samples folder.
 
-RUN=./                        # For java set JAVA=true.
+TYPE=cpp                      # Program type: 'cpp', 'java' or 'python'.
 MAX_TIME=1                    # The max time for one sample.
 
-DEBUG=false                   # Show debug (stderr) output.
 STATS=true                    # Show stats at the end of the run.
-
-# You probably do not want to change these values.
-GREEN='\e[32m'
-RED='\e[31m'
-DIM='\e[2m'
-BOLD='\e[1m'
-RESET='\e[0m'
-
-MAN_PAGE=alg-tester.1
+VERBOSE=false                 # Show stderr output of the program.
