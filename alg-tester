@@ -9,7 +9,7 @@ readonly DIM='\e[2m'
 readonly BOLD='\e[1m'
 readonly RESET='\e[0m'
 
-readonly MAN_PAGE=./alg-tester.1
+readonly MAN_PAGE=alg-tester.1
 readonly VERSION='2.0'
 
 parse_options ()
@@ -28,7 +28,7 @@ parse_options ()
 			-x)  STATS=true                   ; shift   ;;
 			-d)  DEBUG=true                   ; shift   ;;
 			-v)  echo "version $VERSION"      ; exit 0  ;;
-			-h)  man "$MAN_PAGE"              ; exit 0  ;;
+			-h)  man -l "$MAN_PAGE"           ; exit 0  ;;
 			--)  shift                        ; break   ;;
 		esac
 	done
