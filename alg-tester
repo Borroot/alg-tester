@@ -87,7 +87,7 @@ process_round ()
 
 	format_output="$RED$format_output$RESET"
 	local MAX_TIME_NUM
-  MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
+	MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
 
 	if [[ $(awk "{print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
 	then
