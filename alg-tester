@@ -38,9 +38,9 @@ process_cpp ()
 {
 	if [[ "$PROGRAM" =~ ^/ ]]
 	then
-		RUN="$PROGRAM"   # absolute path
+		RUN=$PROGRAM   # absolute path
 	else
-		RUN="./$PROGRAM" # relative path
+		RUN=./$PROGRAM # relative path
 	fi
 }
 
@@ -50,7 +50,7 @@ process_java ()
 	then
 		RUN="java -jar $PROGRAM"
 	else
-		RUN="java -classpath $(dirname $PROGRAM) $(basename $PROGRAM)"
+		RUN="java -classpath $(dirname "$PROGRAM") $(basename "$PROGRAM")"
 	fi
 }
 
@@ -78,18 +78,18 @@ process_round ()
 	if [[ "$stdout" == "$answer" ]]
 	then
 		format_output="$GREEN$format_output$RESET"
+		round_time=$(tr -d ',.' <<< "$time" | sed 's/^0*//g')
 
-		round_time=$(tr -d ',.' <<< $time | sed 's/^0*//g')
-		[[ *m* != $time ]] && let total_time+=round_time
-
-		let correct++
+		[[ ! $time =~ .*m.* ]] && ((total_time += round_time))
+		((correct++))
 		return
 	fi
 
 	format_output="$RED$format_output$RESET"
-	local _MAX_TIME=$(tr -d 'smhd' <<< $MAX_TIME)
+	local MAX_TIME_NUM
+  MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
 
-	if [[ $(awk "BEGIN {print ($time >= $_MAX_TIME && $_MAX_TIME != 0)}") == 1 ]]
+	if [[ $(awk "BEGIN {print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
 	then
 		format_time="$RED$format_time$RESET"
 		stdout="TIME-OUT"
@@ -103,11 +103,13 @@ check_for_updates ()
 {
 	[[ $CHECK_FOR_UPDATES == false ]] && return
 
-	local branch=$(git rev-parse --abbrev-ref HEAD)
-	if [[ "$branch" == "master" ]] && $(timeout .5 git fetch 2> /dev/null)
+	local branch local_hash upstream_hash
+  branch=$(git rev-parse --abbrev-ref HEAD)
+
+	if [[ "$branch" == "master" ]] && timeout .5 git fetch 2> /dev/null
 	then
-		local local_hash=$(git rev-parse HEAD)
-		local upstream_hash=$(git rev-parse master@{upstream})
+		local_hash=$(git rev-parse HEAD)
+		upstream_hash=$(git rev-parse master@\{upstream\})
 
 		if [[ "$local_hash" != "$upstream_hash" ]]
 		then
@@ -146,13 +148,13 @@ print_round ()
 
 print_stats ()
 {
-	amount=$(ls "$SAMPLES"/*.in | wc -l)
-	[[ $STATS == true ]] && echo -e You answered $correct/$amount correct in an average time of $(($total_time / $amount)) ms.
+	amount=$(find "$SAMPLES" -name '*.in' | wc -l)
+	[[ $STATS == true ]] && echo -e You answered $correct/"$amount" correct in an average time of $(("$total_time" / "$amount")) ms.
 }
 
 cleanup ()
 {
-	rm -f $tmp_time_file $tmp_stderr_file
+	rm -f "$tmp_time_file" "$tmp_stderr_file"
 }
 
 parse_options "$@"
@@ -169,16 +171,16 @@ trap "cleanup; exit 1" INT TERM
 format_init
 print_header
 
-for input in $(ls "$SAMPLES"/*.in)
+for input in "$SAMPLES"/*.in
 do
 	format_init
 
-	answer_file="${input%in}out"
-	answer="$(< $answer_file)"
+	answer_file=${input%in}out
+	answer=$(< "$answer_file")
 
-	stdout="$( ( time timeout $MAX_TIME $RUN < $input 2> $tmp_stderr_file ) 2> $tmp_time_file)"
-	stderr="$(< $tmp_stderr_file)"
-	time="$(grep real < $tmp_time_file | awk '{print $2}' | sed 's/0m//' | tr -d s)"
+	stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
+	stderr=$(< "$tmp_stderr_file")
+	time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
 
 	process_round
 	print_round
