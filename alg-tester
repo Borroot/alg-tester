@@ -104,7 +104,7 @@ check_for_updates ()
 	[[ $CHECK_FOR_UPDATES == false ]] && return
 
 	local branch local_hash upstream_hash
-  branch=$(git rev-parse --abbrev-ref HEAD)
+	branch=$(git rev-parse --abbrev-ref HEAD)
 
 	if [[ "$branch" == "master" ]] && timeout .5 git fetch 2> /dev/null
 	then
