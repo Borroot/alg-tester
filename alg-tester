@@ -14,147 +14,147 @@ readonly VERSION='2.0'
 
 parse_options ()
 {
-	TMP=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
-	eval set -- "$TMP"
+  TMP=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
+  eval set -- "$TMP"
 
-	while true; do
-		case "$1" in
-			-p)  PROGRAM="$2"                 ; shift 2 ;;
-			-s)  SAMPLES="$2"                 ; shift 2 ;;
-			-m)  MAX_TIME="$2"                ; shift 2 ;;
-			-c)  TYPE=cpp                     ; shift   ;;
-			-j)  TYPE=java                    ; shift   ;;
-			-3)  TYPE=python                  ; shift   ;;
-			-x)  STATS=true                   ; shift   ;;
-			-d)  DEBUG=true                   ; shift   ;;
-			-v)  echo "version $VERSION"      ; exit 0  ;;
-			-h)  man -l "$MAN_PAGE"           ; exit 0  ;;
-			--)  shift                        ; break   ;;
-		esac
-	done
+  while true; do
+    case "$1" in
+      -p)  PROGRAM="$2"                 ; shift 2 ;;
+      -s)  SAMPLES="$2"                 ; shift 2 ;;
+      -m)  MAX_TIME="$2"                ; shift 2 ;;
+      -c)  TYPE=cpp                     ; shift   ;;
+      -j)  TYPE=java                    ; shift   ;;
+      -3)  TYPE=python                  ; shift   ;;
+      -x)  STATS=true                   ; shift   ;;
+      -d)  DEBUG=true                   ; shift   ;;
+      -v)  echo "version $VERSION"      ; exit 0  ;;
+      -h)  man -l "$MAN_PAGE"           ; exit 0  ;;
+      --)  shift                        ; break   ;;
+    esac
+  done
 }
 
 process_cpp ()
 {
-	if [[ "$PROGRAM" =~ ^/ ]]
-	then
-		RUN=$PROGRAM   # absolute path
-	else
-		RUN=./$PROGRAM # relative path
-	fi
+  if [[ "$PROGRAM" =~ ^/ ]]
+  then
+    RUN=$PROGRAM   # absolute path
+  else
+    RUN=./$PROGRAM # relative path
+  fi
 }
 
 process_java ()
 {
-	if [[ "$PROGRAM" =~ .jar$ ]]
-	then
-		RUN="java -jar $PROGRAM"
-	else
-		RUN="java -classpath $(dirname "$PROGRAM") $(basename "$PROGRAM")"
-	fi
+  if [[ "$PROGRAM" =~ .jar$ ]]
+  then
+    RUN="java -jar $PROGRAM"
+  else
+    RUN="java -classpath $(dirname "$PROGRAM") $(basename "$PROGRAM")"
+  fi
 }
 
 process_python ()
 {
-	RUN="python3 $PROGRAM"
+  RUN="python3 $PROGRAM"
 }
 
 process_options ()
 {
-	[[ "$PROGRAM"  == "" ]] && >&2 echo "Please provide a program."        && exit 1
-	[[ "$SAMPLES"  == "" ]] && >&2 echo "Please provide a samples folder." && exit 1
-	[[ "$MAX_TIME" == "" ]] && >&2 echo "Please provide a max time."       && exit 1
+  [[ "$PROGRAM"  == "" ]] && >&2 echo "Please provide a program."        && exit 1
+  [[ "$SAMPLES"  == "" ]] && >&2 echo "Please provide a samples folder." && exit 1
+  [[ "$MAX_TIME" == "" ]] && >&2 echo "Please provide a max time."       && exit 1
 
-	case "$TYPE" in
-		cpp   )  process_cpp    ;;
-		java  )  process_java   ;;
-		python)  process_python ;;
-		*) >&2 echo "Language '$TYPE' not supported."; exit 1
-	esac
+  case "$TYPE" in
+    cpp   )  process_cpp    ;;
+    java  )  process_java   ;;
+    python)  process_python ;;
+    *) >&2 echo "Language '$TYPE' not supported."; exit 1
+  esac
 }
 
 process_round ()
 {
-	if [[ "$stdout" == "$answer" ]]
-	then
-		format_output="$GREEN$format_output$RESET"
-		round_time=$(tr -d ',.' <<< "$time" | sed 's/^0*//g')
+  if [[ "$stdout" == "$answer" ]]
+  then
+    format_output="$GREEN$format_output$RESET"
+    round_time=$(tr -d ',.' <<< "$time" | sed 's/^0*//g')
 
-		[[ ! $time =~ .*m.* ]] && ((total_time += round_time))
-		((correct++))
-		return
-	fi
+    [[ ! $time =~ .*m.* ]] && ((total_time += round_time))
+    ((correct++))
+    return
+  fi
 
-	format_output="$RED$format_output$RESET"
-	local MAX_TIME_NUM
-	MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
+  format_output="$RED$format_output$RESET"
+  local MAX_TIME_NUM
+  MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
 
-	if [[ $(awk "{print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
-	then
-		format_time="$RED$format_time$RESET"
-		stdout="TIME-OUT"
-		return
-	fi
+  if [[ $(awk "{print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
+  then
+    format_time="$RED$format_time$RESET"
+    stdout="TIME-OUT"
+    return
+  fi
 
-	[[ "$stdout" == "" ]] && stdout="ERROR"
+  [[ "$stdout" == "" ]] && stdout="ERROR"
 }
 
 check_for_updates ()
 {
-	[[ $CHECK_FOR_UPDATES == false ]] && return
+  [[ $CHECK_FOR_UPDATES == false ]] && return
 
-	local branch local_hash upstream_hash
-	branch=$(git rev-parse --abbrev-ref HEAD)
+  local branch local_hash upstream_hash
+  branch=$(git rev-parse --abbrev-ref HEAD)
 
-	if [[ "$branch" == "master" ]] && timeout .5 git fetch 2> /dev/null
-	then
-		local_hash=$(git rev-parse HEAD)
-		upstream_hash=$(git rev-parse master@\{upstream\})
+  if [[ "$branch" == "master" ]] && timeout .5 git fetch 2> /dev/null
+  then
+    local_hash=$(git rev-parse HEAD)
+    upstream_hash=$(git rev-parse master@\{upstream\})
 
-		if [[ "$local_hash" != "$upstream_hash" ]]
-		then
-			echo There is an update, please type \`git pull\'.
-		fi
-	fi
+    if [[ "$local_hash" != "$upstream_hash" ]]
+    then
+      echo There is an update, please type \`git pull\'.
+    fi
+  fi
 }
 
 format_init ()
 {
-	format_input=%-18s
-	format_output=%-15s
-	format_answer=%-15s
-	format_time=%-8s
+  format_input=%-18s
+  format_output=%-15s
+  format_answer=%-15s
+  format_time=%-8s
 }
 
 format_compose ()
 {
-	format="$format_input$format_output$format_answer$format_time"
+  format="$format_input$format_output$format_answer$format_time\n"
 }
 
 print_header ()
 {
-	format_compose
-	printf "$BOLD$format\n$RESET" INPUT OUTPUT ANSWER 'TIME (s)'
+  format_compose
+  printf "$BOLD$format$RESET" INPUT OUTPUT ANSWER 'TIME (s)'
 }
 
 print_round ()
 {
-	format_compose
-	local input_file=${input##*/}
+  format_compose
+  local input_file=${input##*/}
 
-	printf "$format\n" "$input_file" "$stdout" "$answer" "$time"
-	[[ $DEBUG == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
+  printf "$format" "$input_file" "$stdout" "$answer" "$time"
+  [[ $DEBUG == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
 }
 
 print_stats ()
 {
-	amount=$(find "$SAMPLES" -name '*.in' | wc -l)
-	[[ $STATS == true ]] && echo -e You answered $correct/"$amount" correct in an average time of $(("$total_time" / "$amount")) ms.
+  amount=$(find "$SAMPLES" -name '*.in' | wc -l)
+  [[ $STATS == true ]] && echo -e You answered $correct/"$amount" correct in an average time of $(("$total_time" / "$amount")) ms.
 }
 
 cleanup ()
 {
-	rm -f "$tmp_time_file" "$tmp_stderr_file"
+  rm -f "$tmp_time_file" "$tmp_stderr_file"
 }
 
 parse_options "$@"
@@ -173,17 +173,17 @@ print_header
 
 for input in "$SAMPLES"/*.in
 do
-	format_init
+  format_init
 
-	answer_file=${input%in}out
-	answer=$(< "$answer_file")
+  answer_file=${input%in}out
+  answer=$(< "$answer_file")
 
-	stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
-	stderr=$(< "$tmp_stderr_file")
-	time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
+  stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
+  stderr=$(< "$tmp_stderr_file")
+  time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
 
-	process_round
-	print_round
+  process_round
+  print_round
 done
 
 print_stats
