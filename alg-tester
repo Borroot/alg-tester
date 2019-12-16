@@ -160,37 +160,37 @@ cleanup ()
 
 main ()
 {
-    parse_options "$@"
-    process_options
-    check_for_updates
+  parse_options "$@"
+  process_options
+  check_for_updates
 
-    correct=0
-    total_time=0
+  correct=0
+  total_time=0
 
-    tmp_time_file=$(mktemp)
-    tmp_stderr_file=$(mktemp)
-    trap "cleanup; exit 1" INT TERM
+  tmp_time_file=$(mktemp)
+  tmp_stderr_file=$(mktemp)
+  trap "cleanup; exit 1" INT TERM
 
+  format_init
+  print_header
+
+  for input in "$SAMPLES"/*.in
+  do
     format_init
-    print_header
 
-    for input in "$SAMPLES"/*.in
-    do
-        format_init
+    answer_file=${input%in}out
+    answer=$(< "$answer_file")
 
-        answer_file=${input%in}out
-        answer=$(< "$answer_file")
+    stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
+    stderr=$(< "$tmp_stderr_file")
+    time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
 
-        stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
-        stderr=$(< "$tmp_stderr_file")
-        time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
+    process_round
+    print_round
+  done
 
-        process_round
-        print_round
-    done
-
-    print_stats
-    cleanup
+  print_stats
+  cleanup
 }
 
 main "$@"
