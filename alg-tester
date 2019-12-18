@@ -14,8 +14,9 @@ readonly VERSION='2.0'
 
 parse_options ()
 {
-    TMP=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
-    eval set -- "$TMP"
+    local tmp
+    tmp=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
+    eval set -- "$tmp"
 
     while true
     do
@@ -156,7 +157,7 @@ print_stats ()
 
 cleanup ()
 {
-    rm -f "$tmp_time_file" "$tmp_stderr_file"
+    rm -f "$tmp_time" "$tmp_stderr"
 }
 
 main ()
@@ -168,8 +169,8 @@ main ()
     correct=0
     total_time=0
 
-    tmp_time_file=$(mktemp)
-    tmp_stderr_file=$(mktemp)
+    tmp_time=$(mktemp)
+    tmp_stderr=$(mktemp)
     trap "cleanup; exit 1" INT TERM
 
     format_init
@@ -182,9 +183,9 @@ main ()
         answer_file=${input%in}out
         answer=$(< "$answer_file")
 
-        stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr_file" ) 2> "$tmp_time_file")
-        stderr=$(< "$tmp_stderr_file")
-        time=$(grep real < "$tmp_time_file" | awk '{print $2}' | sed 's/0m//' | tr -d s)
+        stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr" ) 2> "$tmp_time")
+        stderr=$(< "$tmp_stderr")
+        time=$(grep real < "$tmp_time" | awk '{print $2}' | sed 's/0m//' | tr -d s)
 
         process_round
         print_round
