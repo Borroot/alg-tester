@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # AUTHOR: Bram Pulles
 
-source defaults
+source defaults || exit 1
 
 readonly GREEN='\e[32m'
 readonly RED='\e[31m'
