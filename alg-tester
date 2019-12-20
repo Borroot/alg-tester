@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
 # AUTHOR: Bram Pulles
 
+# Take the default values from the defaults file.
 source defaults || exit 1
 
+readonly MAN_PAGE=alg-tester.1
+readonly VERSION=2.0.1
+
+# Set some variables for colors.
 readonly GREEN='\e[32m'
 readonly RED='\e[31m'
 readonly DIM='\e[2m'
 readonly BOLD='\e[1m'
 readonly RESET='\e[0m'
 
-readonly MAN_PAGE=alg-tester.1
-readonly VERSION='2.0'
-
+# Parse the options given by the user and set the according variables.
 parse_options ()
 {
 	local tmp
-	tmp=$(getopt "p:s:m:dxcj3vh" "$@") || exit 1
+	tmp=$(getopt 'p:s:m:dxcj3vh' "$@") || exit 1
 	eval set -- "$tmp"
 
 	while true
@@ -29,13 +32,14 @@ parse_options ()
 			-3)  TYPE=python                  ; shift   ;;
 			-x)  STATS=true                   ; shift   ;;
 			-d)  DEBUG=true                   ; shift   ;;
-			-v)  echo "version $VERSION"      ; exit 0  ;;
+			-v)  echo version $VERSION        ; exit 0  ;;
 			-h)  man -l "$MAN_PAGE"           ; exit 0  ;;
 			--)  shift                        ; break   ;;
 		esac
 	done
 }
 
+# Set the $RUN variable for C++ programs.
 process_cpp ()
 {
 	if [[ "$PROGRAM" =~ ^/ ]]
@@ -46,6 +50,8 @@ process_cpp ()
 	fi
 }
 
+# Set the $RUN variable for Java programs. This will also automatically
+# detect if a .jar file is used and set appropriate arguments.
 process_java ()
 {
 	if [[ "$PROGRAM" =~ .jar$ ]]
@@ -56,27 +62,34 @@ process_java ()
 	fi
 }
 
+# Set the $RUN variable for Python programs.
 process_python ()
 {
 	RUN="python3 $PROGRAM"
 }
 
+# Set the variables to run the program given the $PROGRAM and $TYPE variables.
+# Also check if all of the variables needed to run the program are set.
 process_options ()
 {
-	[[ "$PROGRAM"  == "" ]] && >&2 echo "Please provide a program."        && exit 1
-	[[ "$SAMPLES"  == "" ]] && >&2 echo "Please provide a samples folder." && exit 1
-	[[ "$MAX_TIME" == "" ]] && >&2 echo "Please provide a max time."       && exit 1
+	[[ "$PROGRAM"  == "" ]] && >&2 echo Please provide a program.        && exit 1
+	[[ "$SAMPLES"  == "" ]] && >&2 echo Please provide a samples folder. && exit 1
+	[[ "$MAX_TIME" == "" ]] && >&2 echo Please provide a max time.       && exit 1
 
 	case "$TYPE" in
 		cpp   )  process_cpp    ;;
 		java  )  process_java   ;;
 		python)  process_python ;;
-		*) >&2 echo "Language '$TYPE' not supported."; exit 1
+		*) >&2 echo Language \'$TYPE\' not supported. && exit 1
 	esac
 }
 
+# Process the results of the round. This includes settings the colors
+# for the output and the TIME-OUT or ERROR tag. It also includes
+# increasing the $total_time and $correct variables accordingly.
 process_round ()
 {
+	# The answer given is correct.
 	if [[ "$stdout" == "$answer" ]]
 	then
 		format_output="$GREEN$format_output$RESET"
@@ -87,20 +100,24 @@ process_round ()
 		return
 	fi
 
+	# The answer is definitly wrong so make it red.
 	format_output="$RED$format_output$RESET"
 	local MAX_TIME_NUM
 	MAX_TIME_NUM=$(tr -d 'smhd' <<< "$MAX_TIME")
 
-	if [[ $(awk "{print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
+	# A time-out has been detected, set the tag TIME-OUT.
+	if [[ $(awk "BEGIN {print ($time >= $MAX_TIME_NUM && $MAX_TIME_NUM != 0)}") == 1 ]]
 	then
 		format_time="$RED$format_time$RESET"
-		stdout="TIME-OUT"
+		stdout=TIME-OUT
 		return
 	fi
 
-	[[ "$stdout" == "" ]] && stdout="ERROR"
+	# If the answer is null then give the tag ERROR.
+	[[ -z "$stdout" ]] && stdout=ERROR
 }
 
+# Check for updates upstream, this is only done if you are on the master branch.
 check_for_updates ()
 {
 	[[ $CHECK_FOR_UPDATES == false ]] && return
@@ -108,7 +125,7 @@ check_for_updates ()
 	local branch local_hash upstream_hash
 	branch=$(git rev-parse --abbrev-ref HEAD)
 
-	if [[ "$branch" == "master" ]] && timeout .5 git fetch 2> /dev/null
+	if [[ "$branch" == master ]] && timeout 1 git fetch 2> /dev/null
 	then
 		local_hash=$(git rev-parse HEAD)
 		upstream_hash=$(git rev-parse master@\{upstream\})
@@ -120,6 +137,7 @@ check_for_updates ()
 	fi
 }
 
+# Init all the formats used by the printf statements.
 format_init ()
 {
 	format_input=%-18s
@@ -128,38 +146,52 @@ format_init ()
 	format_time=%-8s
 }
 
+# Compose the format for printing the header/round. This is done
+# from the formats for input, output, the answer and the time.
 format_compose ()
 {
 	format="$format_input$format_output$format_answer$format_time\n"
 }
 
+# Print the header at the start which describes the columns.
 print_header ()
 {
 	format_compose
 	printf "$BOLD$format$RESET" INPUT OUTPUT ANSWER 'TIME (s)'
 }
 
+# Print the results of one round. This is the results of one run of the
+# program against a sample.
 print_round ()
 {
 	format_compose
 	local input_file=${input##*/}
 
 	printf "$format" "$input_file" "$stdout" "$answer" "$time"
-	[[ $DEBUG == true && "$stderr" != "" ]] && >&2 echo -e "$DIM$stderr$RESET"
+	[[ $DEBUG == true && "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET"
 }
 
+# Print the final statistics: correct/total and average amount of time.
 print_stats ()
 {
-	amount=$(find "$SAMPLES" -name '*.in' | wc -l)
-	[[ $STATS == true ]] && echo -e You answered $correct/"$amount" correct in an\
-	                          average time of $(("$total_time" / "$amount")) ms.
+	if [[ $STATS == true ]]
+	then
+		local amount
+		amount=$(find "$SAMPLES" -name '*.in' | wc -l)
+
+		echo -e You answered $correct/"$amount" correct in an \
+		    average time of $((total_time / amount)) ms.
+	fi
 }
 
+# Remove the temporary files used for output.
 cleanup ()
 {
 	rm -f "$tmp_time" "$tmp_stderr"
 }
 
+# For all of the samples in the samples folder run the program given
+# and check if this gives the correct answer. Print the results.
 main ()
 {
 	parse_options "$@"
@@ -171,7 +203,7 @@ main ()
 
 	tmp_time=$(mktemp)
 	tmp_stderr=$(mktemp)
-	trap "cleanup; exit 1" INT TERM
+	trap "cleanup; exit 1" SIGINT
 
 	format_init
 	print_header
@@ -181,9 +213,10 @@ main ()
 		format_init
 
 		answer_file=${input%in}out
-		answer=$(< "$answer_file")
+		answer=$(< "$answer_file")  # correct answer
 
-		stdout=$( ( time timeout "$MAX_TIME" $RUN < "$input" 2> "$tmp_stderr" ) 2> "$tmp_time")
+		# Run the program against the $input sample and save the results.
+		stdout=$( (time timeout "$MAX_TIME" $RUN < "$input" 2> "$tmp_stderr") 2> "$tmp_time" )
 		stderr=$(< "$tmp_stderr")
 		time=$(grep real < "$tmp_time" | awk '{print $2}' | sed 's/0m//' | tr -d s | tr ',' '.')
 
