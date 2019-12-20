@@ -183,9 +183,9 @@ main ()
 		answer_file=${input%in}out
 		answer=$(< "$answer_file")
 
-		stdout=$( ( time timeout "$MAX_TIME" "$RUN" < "$input" 2> "$tmp_stderr" ) 2> "$tmp_time")
+		stdout=$( ( time timeout "$MAX_TIME" $RUN < "$input" 2> "$tmp_stderr" ) 2> "$tmp_time")
 		stderr=$(< "$tmp_stderr")
-		time=$(grep real < "$tmp_time" | awk '{print $2}' | sed 's/0m//' | tr -d s)
+		time=$(grep real < "$tmp_time" | awk '{print $2}' | sed 's/0m//' | tr -d s | tr ',' '.')
 
 		process_round
 		print_round
