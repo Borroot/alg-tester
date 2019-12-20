@@ -117,26 +117,6 @@ process_round ()
 	[[ -z "$stdout" ]] && stdout=ERROR
 }
 
-# Check for updates upstream, this is only done if you are on the master branch.
-check_for_updates ()
-{
-	[[ $CHECK_FOR_UPDATES == false ]] && return
-
-	local branch local_hash upstream_hash
-	branch=$(git rev-parse --abbrev-ref HEAD)
-
-	if [[ "$branch" == master ]] && timeout 1 git fetch 2> /dev/null
-	then
-		local_hash=$(git rev-parse HEAD)
-		upstream_hash=$(git rev-parse master@\{upstream\})
-
-		if [[ "$local_hash" != "$upstream_hash" ]]
-		then
-			echo There is an update, please type \`git pull\'.
-		fi
-	fi
-}
-
 # Init all the formats used by the printf statements.
 format_init ()
 {
@@ -196,7 +176,6 @@ main ()
 {
 	parse_options "$@"
 	process_options
-	check_for_updates
 
 	correct=0
 	total_time=0
