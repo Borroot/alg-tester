@@ -2,9 +2,9 @@
 # AUTHOR: Bram Pulles
 
 # Take the default values from the defaults file.
-source defaults || exit 1
+source $(dirname $0)/defaults || exit 1
 
-readonly MAN_PAGE=alg-tester.1
+readonly MAN_PAGE=$(dirname $0)/alg-tester.1
 readonly VERSION=2.0.1
 
 # Set some variables for colors.
