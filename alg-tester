@@ -2,10 +2,11 @@
 # AUTHOR: Bram Pulles
 
 # Take the default values from the defaults file.
-source $(dirname $0)/defaults || exit 1
+readonly DIR=$(dirname "$0")
+source "$DIR"/defaults
 
-readonly MAN_PAGE=$(dirname $0)/alg-tester.1
-readonly VERSION=2.0.1
+readonly MAN_PAGE=$DIR/alg-tester.1
+readonly VERSION=2.0.2
 
 # Set some variables for colors.
 readonly GREEN='\e[32m'
