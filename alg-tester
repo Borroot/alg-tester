@@ -2,6 +2,7 @@
 # AUTHOR: Bram Pulles
 
 # Take the default values from the defaults file.
+# shellcheck source=defaults
 readonly DIR=$(dirname "$0")
 source "$DIR"/defaults
 
@@ -138,6 +139,8 @@ format_compose ()
 print_header ()
 {
 	format_compose
+
+	# shellcheck disable=SC2059
 	printf "$BOLD$format$RESET" INPUT OUTPUT ANSWER 'TIME (s)'
 }
 
@@ -148,6 +151,7 @@ print_round ()
 	format_compose
 	local input_file=${input##*/}
 
+	# shellcheck disable=SC2059
 	printf "$format" "$input_file" "$stdout" "$answer" "$time"
 	[[ $DEBUG == true && "$stderr" != "" ]] && echo -e "$DIM$stderr$RESET"
 }
@@ -196,6 +200,7 @@ main ()
 		answer=$(< "$answer_file")  # correct answer
 
 		# Run the program against the $input sample and save the results.
+		# shellcheck disable=SC2086
 		stdout=$( (time timeout "$MAX_TIME" $RUN < "$input" 2> "$tmp_stderr") 2> "$tmp_time" )
 		stderr=$(< "$tmp_stderr")
 		time=$(grep real < "$tmp_time" | awk '{print $2}' | sed 's/0m//' | tr -d s | tr ',' '.')
