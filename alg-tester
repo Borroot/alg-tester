@@ -22,17 +22,17 @@ parse_options ()
 	while getopts 'p:s:m:dxcj3vh' opt
 	do
 		case $opt in
-			p)  PROGRAM=$OPTARG                ;;
-			s)  SAMPLES=$OPTARG                ;;
-			m)  MAX_TIME=$OPTARG               ;;
-			c)  TYPE=cpp                       ;;
-			j)  TYPE=java                      ;;
-			3)  TYPE=python                    ;;
-			x)  STATS=true                     ;;
-			d)  DEBUG=true                     ;;
-			v)  echo version $VERSION ; exit 0 ;;
-			h)  man -l "$MAN_PAGE"    ; exit 0 ;;
-			?)                          exit 1 ;;
+			p) PROGRAM=$OPTARG                ;;
+			s) SAMPLES=$OPTARG                ;;
+			m) MAX_TIME=$OPTARG               ;;
+			c) TYPE=cpp                       ;;
+			j) TYPE=java                      ;;
+			3) TYPE=python                    ;;
+			x) STATS=true                     ;;
+			d) DEBUG=true                     ;;
+			v) echo version $VERSION ; exit 0 ;;
+			h) man -l "$MAN_PAGE"    ; exit 0 ;;
+			?) exit 1                         ;;
 		esac
 	done
 }
