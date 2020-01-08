@@ -40,8 +40,7 @@ parse_options ()
 # Set the $RUN variable for C++ programs.
 process_cpp ()
 {
-	[[ ! -x $PROGRAM ]] && >&2 echo -e Your program is not executable.'\n'\
-	    '\r'Use \`chmod +x "$PROGRAM"\` to make it executable. && exit 1
+	[[ ! -x $PROGRAM ]] && >&2 echo -e Your program is not executable. && exit 1
 
 	if [[ $PROGRAM =~ ^/ ]]
 	then
