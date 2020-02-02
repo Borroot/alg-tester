@@ -37,8 +37,8 @@ parse_options ()
 	done
 }
 
-# Set the $RUN variable for C++ programs.
-process_cpp ()
+# Set the $RUN variable for C/C++ programs.
+process_c ()
 {
 	[[ ! -x $PROGRAM ]] && >&2 echo -e Your program is not executable. && exit 1
 
@@ -80,7 +80,7 @@ process_options ()
 	[[ ! -e $SAMPLES ]] && >&2 echo Folder "$SAMPLES" does not exist.  && exit 1
 
 	case $TYPE in
-		cpp   )  process_cpp    ;;
+		c|cpp )  process_c      ;;
 		java  )  process_java   ;;
 		python)  process_python ;;
 		*) >&2 echo Language \'$TYPE\' not supported. && exit 1

@@ -4,7 +4,7 @@
 PROGRAM=                        # Your algorithm solver program.
 SAMPLES=                        # The samples folder.
 
-TYPE=cpp                        # Program type: 'cpp', 'java' or 'python'.
+TYPE=cpp                        # Program type: 'c', 'cpp', 'java' or 'python'.
 MAX_TIME=1s                     # The max time for one sample.
 
 STATS=true                      # Show stats at the end of the run.
