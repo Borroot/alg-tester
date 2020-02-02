@@ -2,7 +2,7 @@
 # AUTHOR: Bram Pulles
 
 PROGRAM=                        # Your algorithm solver program.
-SAMPLES=samples/actor-matching  # The samples folder.
+SAMPLES=                        # The samples folder.
 
 TYPE=cpp                        # Program type: 'cpp', 'java' or 'python'.
 MAX_TIME=1s                     # The max time for one sample.
